@@ -2,6 +2,15 @@
 
 Notable changes to Formogenesis: Flowers are documented here. Versions describe development milestones, not scientific validation.
 
+## [0.3.4] - 2026-11-15
+
+### Anatomical bases and flatter frangipani petals
+- Removed the same large green spherical receptacle from almost every flower.
+- Added shallow, layered, lanceolate phyllaries beneath the four Asteraceae composite heads (sunflower, daisy, gerbera and coneflower), and thinned the solid backing disc.
+- Retained the rose's own hypanthium, the frangipani's small calyx and tube, and direct stem connections for poppy and tulip.
+- Rebuilt frangipani lobes in local tangent planes instead of sweeping their cross-sections around a circular arc; removed the edge-downturn that made the margins look folded.
+- Introduced a smooth, one-sided interpetal height offset to clarify the shingled overlap while keeping margins flat. This is a geometric overlap approximation, not a tissue-contact solver.
+
 ## [0.3.3] - 2026-11-15
 
 ### Frangipani visual correction

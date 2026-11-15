@@ -40,6 +40,7 @@ The existing flower application stays at the repository root for now to preserve
 - Several rose styles, inspired by natural and geometric forms
 - 3D and top-down views, soft shadows, petal controls and colors
 - Tapered, gently bending stems with subtle longitudinal texture and species-dependent thickness
+- Flower-specific bases: layered green phyllaries for sunflower-like composite heads; small calyces or hypanthia where appropriate, without generic green spheres
 - Bud-to-bloom timeline and growth animation, including five-lobed frangipani with an illustrative twisted-overlap bud
 - Vogel golden-angle arrangement is the default sunflower display; inhibition mode builds locally from sequential primordia
 - Inhibition-driven primordium assembly: a 10-second top-down growth animation, adjustable inhibition radius and Fibonacci-like, Lucas-like, doubled-spiral and whorl-pattern comparisons
@@ -56,6 +57,14 @@ For composite heads, the fixed-angle Vogel construction is the default/reference
 - Douady, S., & Couder, Y. (1992). Phyllotaxis as a physical self-organized growth process. *Physical Review Letters*, 68(13), 2098–2101. https://doi.org/10.1103/PhysRevLett.68.2098
 - Douady, S., & Couder, Y. (1996). *Phyllotaxis as a dynamical self organizing process*, Parts I and II. *Journal of Theoretical Biology*, 178(3), 255–294. https://doi.org/10.1006/jtbi.1996.0024 and https://doi.org/10.1006/jtbi.1996.0025
 - Liang, H., & Mahadevan, L. (2011). Growth, geometry, and mechanics of a blooming lily. *PNAS*, 108(14), 5516–5521. https://doi.org/10.1073/pnas.1007808108 (Background for growth mechanics, not implemented here.)
+
+### Floral bases and petal overlap
+
+An Asteraceae flower head sits above a flattened to conical receptacle and overlapping green **involucral bracts (phyllaries)**; it does not have a generic spherical calyx. Roses have a small hypanthium, Plumeria a narrow corolla tube and five-lobed calyx, and Papaver sepals normally fall off as the bud opens. The current 3D models make simplified, flower-specific choices. The frangipani's flat, overlapping lobes use a prescribed small one-sided height offset to prevent surface intersections; this is visual geometry, not a contact-mechanics or growth solver.
+
+- [Flora of North America — Asteraceae](https://efloras.org/florataxon.aspx?flora_id=1&taxon_id=10074)
+- [Flora of North America — Papaveraceae](https://efloras.org/florataxon.aspx?flora_id=1&taxon_id=10650)
+- [Kew Science — Plumeria](https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:30001863-2/general-information)
 
 ### Frangipani morphology reference
 

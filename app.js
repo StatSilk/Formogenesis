@@ -83,6 +83,39 @@ function newPetal(parent,opts,color,thickness){
  const geo=meshOfSurface(petalSurface({...opts,thicknessMm:mm}),30,18,thickness);
  const m=new THREE.Mesh(geo,material(color));m.castShadow=true;m.receiveShadow=true;parent.add(m);
 }
+
+// Composite heads are borne above an involucre: many flattened, pointed
+// phyllaries beneath a shallow receptacle, rather than a spherical green base.
+// The dimensions are species-inspired approximations, not specimen scans.
+function compositeInvolucre(group,type,headY){
+ const isSun=type==='sunflower';
+ const outerR=type==='echinacea'?.51:type==='gerbera'?.46:type==='daisy'?.43:.53;
+ const cup=new THREE.Mesh(
+  new THREE.CylinderGeometry(outerR*.58,.055,.18,48),
+  material(isSun?'#416b36':'#4f7946'));
+ cup.position.y=headY-.095;cup.castShadow=true;cup.receiveShadow=true;group.add(cup);
+ const counts=isSun?[23,18]:type==='gerbera'?[21,15]:
+  type==='echinacea'?[19,13]:[17,12];
+ for(let tier=0;tier<2;tier++){
+  const n=counts[tier];
+  for(let j=0;j<n;j++){
+   const phi=TAU*(j+.46*tier)/n;
+   const reach=outerR*(tier===0?1:.83)*(1+.055*Math.sin(j*2.03+tier));
+   const fn=(t,u)=>{
+    const width=.10*Math.pow(Math.max(0,Math.sin(Math.PI*t)),.70)*
+      (tier===0?1:.82);
+    const rr=.075+reach*t;
+    const angle=phi+width*u;
+    const y=headY-.185+.095*t-.018*t*t+
+      .018*(1-u*u)*Math.sin(Math.PI*t)+(tier===0?-.018:.012);
+    return [rr*Math.cos(angle),y,rr*Math.sin(angle)];
+   };
+   const bract=new THREE.Mesh(meshOfSurface(fn,18,8,.009),
+    material((j+tier)%3===0?'#4b8451':(j+tier)%3===1?'#3f7545':'#60894b'));
+   bract.castShadow=true;bract.receiveShadow=true;group.add(bract);
+  }
+ }
+}
 function stemAndLeaves(group,p,headY,type){
  const adultLength=1.2+p.stem/100*2.0;
  const stage=clamp(p.growth??1,0,1);
@@ -151,11 +184,11 @@ function stemAndLeaves(group,p,headY,type){
  const stem=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({
   vertexColors:true,roughness:1,metalness:0,side:THREE.FrontSide}));
  stem.castShadow=true;stem.receiveShadow=true;group.add(stem);
- if(type!=='tulip'){
-  const receptacle=new THREE.Mesh(
-   new THREE.SphereGeometry(type==='rose'?.125:.22,24,18),
-   material('#458f4b'));
-  receptacle.scale.set(1,1.10,1);receptacle.position.y=headY-.005;group.add(receptacle);
+ // Floral bases belong to each flower's anatomy. Roses already build their
+ // hypanthium; frangipani its corolla tube and tiny calyx; tulips meet the stalk
+ // directly; poppy sepals shed as the bloom opens.
+ if(['sunflower','daisy','gerbera','echinacea'].includes(type)){
+  compositeInvolucre(group,type,headY);
  }
  for(let k=0;k<2;k++){
  const h=headY-len*(.34+k*.29),a=.6+k*Math.PI;
@@ -310,30 +343,30 @@ function frangipani(group,p,headY){
  for(let j=0;j<count;j++){
   const theta=TAU*j/count + .02;
   const length=(.35+.68*smooth((age-.04)/.71))*(1+.018*Math.sin(2.4*j));
-  const breadth=.82*(p.width/93);
-  const curl=p.curl/100;
+    const curl=p.curl/100;
   const twist=.28+.38*p.twist/100;
   const fn=(t,u)=>{
    // Rounded outer lobe; the broad region ends in a soft circular tip.
-   const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*t)),.43);
-   const edge=envelope*(.66+.34*t);
-   // At the fused base, each sector spans a fifth of the full ring.
-   // Interpolate toward rounded independent lobes: adjacent petals stay
-   // connected near the throat, then overlap and finally separate at tips.
-   const transition=smooth(t);
-   const halfArc=(Math.PI/count*1.022)*(1-transition)+breadth*edge*transition;
-   const shear=winding*twist*Math.pow(t,.82)*(.92-.62*opening);
-   const az=theta+u*halfArc+shear+
-    .022*Math.sin(j*2.7+t*5.0)*t*(1-Math.abs(u));
-   const rr=.14+length*t*(.065+.96*opening)+
-    .048*(1-u*u)*Math.sin(Math.PI*t)*opening;
-   const valley=.047*u*t*(.65+.35*t)*(1-opening);
-   let y=rimY+length*t*(.94-.86*opening)-
-    (.065+.15*curl)*Math.pow(t,2.2)*opening+valley;
-   // Shallow transverse cupping and a softly reflexed rim.
-   y+=.048*(1-u*u)*envelope*opening-
-    .065*Math.pow(Math.abs(u),2)*Math.pow(t,1.5)*opening;
-   return [rr*Math.cos(az),y,rr*Math.sin(az)];
+   // Construct lobes as smooth strips in their own tangent planes.
+   // The earlier polar-angle map curled both edges around a cylindrical arc.
+   const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*t)),.48);
+   const edge=envelope*(.65+.35*t);
+   const emergence=smooth(t/.48);
+   const halfWidth=.106*(1-smooth(t))+
+    (.55*(p.width/93))*edge*emergence;
+   const shear=winding*twist*Math.pow(t,.82)*(.92-.48*opening);
+   const phi=theta+shear;
+   const rr=.14+length*t*(.065+.96*opening);
+   const lateral=u*halfWidth;
+   // A gentle, consistent shingle tilt puts the counter-clockwise edge of
+   // each lobe above the clockwise edge of its neighbour. It fades to zero
+   // at the joined base and rounded tip, without curling the petal margins.
+   const shingle=.042*u*envelope*opening;
+   const valley=.02*u*t*(1-opening);
+   const y=rimY+length*t*(.94-.86*opening)-
+    (.065+.12*curl)*Math.pow(t,2.2)*opening+shingle+valley;
+   return [rr*Math.cos(phi)-lateral*Math.sin(phi),y,
+    rr*Math.sin(phi)+lateral*Math.cos(phi)];
   };
   const geometry=meshOfSurface(fn,segments,across,.012+p.thickness/100*.016);
   const colors=[],paleYellow=new THREE.Color('#ffd468');
@@ -434,7 +467,7 @@ function discFlower(group,p,headY,type){
  const smooth=x=>x*x*(3-2*x);
  const spread=smooth(clamp(p.open/100,0,1))*smooth(age);
 
- const base=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius*.87,.16,80),material(type==='sunflower'?'#544024':'#647635'));base.position.y=headY+.015;base.castShadow=true;group.add(base);
+ const base=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius*.90,.095,80),material(type==='sunflower'?'#544024':'#647635'));base.position.y=headY+.012;base.castShadow=true;group.add(base);
  const domeMesh=new THREE.Mesh(new THREE.SphereGeometry(1,64,36,0,TAU,0,Math.PI/2),material(type==='daisy'?'#d9ab27':type==='gerbera'?'#a87727':'#594022'));
  domeMesh.scale.set(radius,dome,radius);domeMesh.position.y=headY+.075;domeMesh.castShadow=true;group.add(domeMesh);
  // Contrast a prescribed Vogel angle with an emergent inhibition field.
