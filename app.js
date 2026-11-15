@@ -55,8 +55,20 @@ function petalSurface(spec){
    r=.04+length*(.2+.8*opening)*Math.pow(t,.86);
    y=length*(.95-.60*opening)*t;
   }
-  // Growth-metric cupping/edge waves plus equal-layer bilayer bending.
-  y+=height+arc.axial*length*.65;
+  // Growth-metric cupping/edge waves displace the sheet along its normal.
+  const ts=Math.max(.025,t);
+  const spreadRate=(.18+.82*q)*opening;
+  const drdt=rose?
+   length*(.28+spreadRate*.84)*.87*Math.pow(ts,-.13):
+   length*(.2+.8*opening)*.86*Math.pow(ts,-.14);
+  const dydt=rose?
+   (.80*(1-q)+.37*q)*Math.PI*.77*Math.cos(Math.PI*t*.77)-
+   (.13+.22*q)*opening*2.4*Math.pow(t,1.4):
+   length*(.95-.60*opening);
+  const inv=1/Math.max(.01,Math.hypot(drdt,dydt));
+  r-=height*dydt*inv;
+  y+=height*drdt*inv;
+  y+=arc.axial*length*.65;
   r+=arc.outward*length*.30;
   y+=(rose?.025:.018)*(1-u*u)*Math.sin(Math.PI*t);
   const theta=phi+lateral/(Math.max(.20,r+.18))*.46+lateralCurve;

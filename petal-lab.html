@@ -54,7 +54,14 @@ function surface(t,u,phi,index,flower,shapeMode){
   const h=metricHeight(t,u,activeFit);
   const arc=bilayerArc(t,{deltaEpsilon:state.mismatch*.001*stage,
     thicknessMm:state.thickness*.1,lengthMm:activeFit.lengthMm});
-  y+=h*lengthWorld+arc.axial*lengthWorld;
+  // Apply the fitted height approximately along the reference surface normal.
+  const drdt=.14*t+(flower==='rose'?.63:.39)*stage*6*t*(1-t);
+  const dydt=(flower==='rose'?.92:1.15)*(.63+.37*stage)-
+   2*(flower==='rose'?.18:.10)*stage*t;
+  const inv=1/Math.max(.01,Math.hypot(drdt,dydt));
+  radial-=h*lengthWorld*dydt*inv;
+  y+=h*lengthWorld*drdt*inv;
+  y+=arc.axial*lengthWorld;
   radial+=arc.outward*lengthWorld*.84;
  }
  return vec(radial*Math.cos(angular)-localX*Math.sin(angular),y,
