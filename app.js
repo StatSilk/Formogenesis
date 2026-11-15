@@ -88,22 +88,79 @@ function stemAndLeaves(group,p,headY,type){
  const stage=clamp(p.growth??1,0,1);
  const rise=stage*stage*(3-2*stage);
  const len=type==='tulip'?adultLength*(.48+.52*rise):adultLength;
- const green=material('#438b52');
- const stem=new THREE.Mesh(new THREE.CylinderGeometry(.067,.075,len+.12,16),green);
- stem.position.y=headY-len/2+.06;stem.castShadow=true;group.add(stem);
- if(type==='tulip'){
-   // Slim collar joins the stem to all six tepals without an artificial green sphere.
-   const collar=new THREE.Mesh(
-     new THREE.CylinderGeometry(.083,.067,.19,24,1),green);
-   collar.position.y=headY+.085;collar.castShadow=true;group.add(collar);
+ // A living stalk is an irregular, gradually tapering surface, not a PBR-plastic cylinder.
+ const radii={sunflower:.058,gerbera:.052,echinacea:.053,rose:.043,tulip:.043,
+  lily:.044,daisy:.044,poppy:.038};
+ const baseRadius=radii[type]??.045;
+ const phase={sunflower:1.8,rose:.4,tulip:2.7,lily:1.1,daisy:2.1,
+  gerbera:.8,echinacea:1.4,poppy:2.9}[type]??1;
+ const stemHeight=len+.12;
+ function centerAt(t){
+  const remaining=Math.pow(1-t,1.6);
+  const bow=Math.sin(Math.PI*t);
+  return [(.052+.007*Math.sin(phase))*remaining*Math.cos(phase)+
+   .010*bow*Math.sin(4.2*t+phase),
+   (.052+.007*Math.sin(phase))*remaining*Math.sin(phase)+
+   .009*bow*Math.cos(3.1*t+phase)];
  }
+ const lower=new THREE.Color(type==='sunflower'?'#3c6d3a':'#356e45');
+ const upper=new THREE.Color(type==='sunflower'?'#61864d':'#50895a');
+ const divisions=40,radialSegments=24,positions=[],colors=[],indices=[];
+ const tint=new THREE.Color();
+ for(let i=0;i<=divisions;i++){
+  const t=i/divisions,center=centerAt(t),y=headY-len+stemHeight*t;
+  const taper=1-.21*t;
+  const node=.05*Math.exp(-Math.pow((t-.40)/.027,2))+
+   .05*Math.exp(-Math.pow((t-.69)/.027,2));
+  // Tulip's small swollen upper peduncle replaces the previous thick cylindrical collar.
+  const neck=type==='tulip'?.038*Math.exp(-Math.pow((1-t)/.070,2)):0;
+  for(let j=0;j<radialSegments;j++){
+   const th=TAU*j/radialSegments;
+   const fibre=.028*Math.sin(7*th+1.4*t+phase)+
+    .013*Math.sin(13*th+2.1*t)+.009*Math.sin(21*th-3.5*t+phase);
+   const fineGrain=.006*Math.sin(12*t+3*th+phase);
+   const radius=baseRadius*(taper+node)*(1+fibre+fineGrain)+neck;
+   positions.push(center[0]+radius*Math.cos(th),y,center[1]+radius*Math.sin(th));
+   tint.copy(lower).lerp(upper,.23+.55*t);
+   const colourFibre=.045*Math.sin(7*th+1.4*t+phase)+
+    .022*Math.sin(13*th+2.1*t)+.025*Math.cos(th-phase);
+   tint.multiplyScalar(.96+colourFibre+.018*Math.sin(t*9+phase));
+   colors.push(tint.r,tint.g,tint.b);
+  }
+ }
+ for(let i=0;i<divisions;i++)for(let j=0;j<radialSegments;j++){
+  const next=(j+1)%radialSegments;
+  const a=i*radialSegments+j,b=(i+1)*radialSegments+j,
+   c=i*radialSegments+next,d=(i+1)*radialSegments+next;
+  indices.push(a,b,c,c,b,d);
+ }
+ // Cap both ends, with the upper one tucked into the receptacle.
+ const bottom=centerAt(0),top=centerAt(1),base=positions.length/3;
+ positions.push(bottom[0],headY-len,bottom[1],top[0],headY+.12,top[1]);
+ for(const c of [lower,upper])colors.push(c.r,c.g,c.b);
+ for(let j=0;j<radialSegments;j++){
+  const next=(j+1)%radialSegments;
+  indices.push(base,j,next);
+  const tip=divisions*radialSegments;
+  indices.push(base+1,tip+next,tip+j);
+ }
+ const geometry=new THREE.BufferGeometry();
+ geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+ geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+ geometry.setIndex(indices);geometry.computeVertexNormals();
+ const stem=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({
+  vertexColors:true,roughness:1,metalness:0,side:THREE.FrontSide}));
+ stem.castShadow=true;stem.receiveShadow=true;group.add(stem);
  if(type!=='tulip'){
- const receptacle=new THREE.Mesh(new THREE.SphereGeometry(type==='rose'?.125:.22,24,18),material('#458f4b'));
- receptacle.scale.set(1,1.10,1);receptacle.position.y=headY-.005;group.add(receptacle);
+  const receptacle=new THREE.Mesh(
+   new THREE.SphereGeometry(type==='rose'?.125:.22,24,18),
+   material('#458f4b'));
+  receptacle.scale.set(1,1.10,1);receptacle.position.y=headY-.005;group.add(receptacle);
  }
  for(let k=0;k<2;k++){
  const h=headY-len*(.34+k*.29),a=.6+k*Math.PI;
- const fn=(t,u)=>{const reach=.9*t,ww=.27*Math.pow(Math.sin(Math.PI*t),.75),cu=.12*(1-u*u)*Math.sin(Math.PI*t);return [Math.cos(a)*reach-Math.sin(a)*ww*u,h+.15*Math.sin(Math.PI*t)-.21*t+cu,Math.sin(a)*reach+Math.cos(a)*ww*u]};
+ const origin=centerAt(clamp((h-(headY-len))/stemHeight,0,1));
+ const fn=(t,u)=>{const reach=.9*t,ww=.27*Math.pow(Math.sin(Math.PI*t),.75),cu=.12*(1-u*u)*Math.sin(Math.PI*t);return [origin[0]+Math.cos(a)*reach-Math.sin(a)*ww*u,h+.15*Math.sin(Math.PI*t)-.21*t+cu,origin[1]+Math.sin(a)*reach+Math.cos(a)*ww*u]};
  const leaf=new THREE.Mesh(meshOfSurface(fn,18,12,.045),material(k?'#45965c':'#51a46a'));leaf.castShadow=true;leaf.receiveShadow=true;group.add(leaf);
  // midrib follows the leaf's centreline.
  const points=[];for(let j=0;j<=12;j++){const pp=fn(j/12,0);points.push(new THREE.Vector3(pp[0],pp[1]+.022,pp[2]));}

@@ -2,6 +2,14 @@
 
 Notable changes to Formogenesis: Flowers are documented here. Versions describe development milestones, not scientific validation.
 
+## [0.3.1] - 2026-11-15
+
+### More natural flower stems
+- Replaced uniform, thick cylinder stems with slimmer tapered, gently curving meshes and subtle longitudinal ridges.
+- Introduced deterministic per-vertex green variation and matte materials for softer, less plastic-looking stalks.
+- Joined leaves to the stem centreline and replaced the tulip's thick cylindrical collar with a tapered organic neck.
+- Retained the original stem-length controls and bud-to-bloom growth behaviour; the new surface is illustrative rather than a tissue-mechanics model.
+
 ## [0.3.0] - 2026-11-15
 
 ### Self-organizing phyllotaxis

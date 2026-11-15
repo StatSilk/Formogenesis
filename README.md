@@ -39,6 +39,7 @@ The existing flower application stays at the repository root for now to preserve
 - Eight flower families including sunflower, rose, tulip, lily, daisy, gerbera, coneflower, poppy
 - Several rose styles, inspired by natural and geometric forms
 - 3D and top-down views, soft shadows, petal controls and colors
+- Tapered, gently bending stems with subtle longitudinal texture and species-dependent thickness
 - Bud-to-bloom timeline and growth animation
 - Inhibition-driven primordium assembly: a 10-second top-down growth animation, adjustable inhibition radius and Fibonacci-like, Lucas-like, doubled-spiral and whorl-pattern comparisons
 - Toggle between a local-inhibition experiment and the fixed-angle Vogel reference for composite flower heads
