@@ -446,7 +446,7 @@ $('copySettings').onclick=()=>{const json=JSON.stringify({flower:family,settings
 setFlower(family);setMode('perspective');resize();
 // Card viewer uses the same Three.js flower engine; no duplicate geometry.
 window.addEventListener('message',event=>{
- if(event.origin!==location.origin||!event.data||event.data.type!=='statflowers-card')return;
+ if(event.origin!==location.origin||!event.data||!['formogenesis-card','statflowers-card'].includes(event.data.type))return;
  const d=event.data;
  if(!Object.prototype.hasOwnProperty.call(presets,d.flower))return;
  if(family!==d.flower)setFlower(d.flower);

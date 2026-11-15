@@ -8,7 +8,7 @@ const svg = [];
 const golden = Math.PI * (3 - Math.sqrt(5));
 const cx = 318, cy = 317;
 svg.push(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">`);
-svg.push(`<title id="title">StatFlowers botanical geometry playground</title><desc id="desc">A geometric sunflower with golden-angle floret packing.</desc>`);
+svg.push(`<title id="title">Formogenesis: Flowers</title><desc id="desc">A geometric sunflower with golden-angle floret packing.</desc>`);
 svg.push(`<defs><radialGradient id="bg"><stop stop-color="#254b3a"/><stop offset="1" stop-color="#0c1c19"/></radialGradient><radialGradient id="petal"><stop stop-color="#ffe49d"/><stop offset=".55" stop-color="#f5b638"/><stop offset="1" stop-color="#b86b20"/></radialGradient><radialGradient id="disk"><stop stop-color="#77512d"/><stop offset="1" stop-color="#332719"/></radialGradient></defs>`);
 svg.push(`<rect width="1200" height="630" fill="url(#bg)"/>`);
 for (let i=0;i<120;i++) {
@@ -33,9 +33,9 @@ for (let i=0;i<560;i++) {
 }
 svg.push(`<path d="M628 120v390" stroke="#7d9f83" stroke-width="1" opacity=".55"/>`);
 svg.push(`<text x="688" y="214" fill="#e5c88e" font-family="Arial,Helvetica,sans-serif" font-size="18" letter-spacing="6">MATHEMATICS OF NATURE</text>`);
-svg.push(`<text x="681" y="310" fill="#f8f1db" font-family="Georgia,serif" font-size="75">StatFlowers</text>`);
-svg.push(`<text x="686" y="370" fill="#d5e5d2" font-family="Arial,Helvetica,sans-serif" font-size="24">A botanical geometry playground</text>`);
-svg.push(`<text x="686" y="429" fill="#b0c9b7" font-family="Arial,Helvetica,sans-serif" font-size="17">3D FLOWERS  ·  PHYLLOTAXIS  ·  GROWTH</text>`);
+svg.push(`<text x="681" y="310" fill="#f8f1db" font-family="Georgia,serif" font-size="67">Formogenesis</text>`);
+svg.push(`<text x="686" y="370" fill="#d5e5d2" font-family="Arial,Helvetica,sans-serif" font-size="24">The mathematics of nature's forms</text>`);
+svg.push(`<text x="686" y="429" fill="#b0c9b7" font-family="Arial,Helvetica,sans-serif" font-size="17">FLOWERS  ·  PATTERNS  ·  GROWTH</text>`);
 svg.push(`<text x="40" y="598" fill="#a2bea7" font-family="Arial,Helvetica,sans-serif" font-size="14" letter-spacing="2">IDEALIZED GOLDEN-ANGLE CONSTRUCTION · PROCEDURAL ILLUSTRATION</text>`);
 svg.push(`</svg>`);
 await mkdir('assets',{recursive:true});

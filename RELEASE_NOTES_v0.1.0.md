@@ -1,6 +1,6 @@
-# StatFlowers v0.1.0 — First Public Preview 🌸
+# Formogenesis Flowers v0.1.0 — First Public Preview 🌸
 
-StatFlowers is an interactive 3D botanical studio for exploring procedural flower forms, bloom development and mathematical patterns.
+Flowers is an interactive 3D botanical experiment in the Formogenesis collection, exploring procedural flower forms, bloom development and mathematical patterns.
 
 ## Highlights
 

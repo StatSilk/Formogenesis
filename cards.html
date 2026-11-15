@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>3D Flower Cards | StatFlowers</title><meta name="description" content="Create and share an interactive 3D flower greeting card."><meta property="og:type" content="website"><meta property="og:title" content="3D Flower Cards · StatFlowers"><meta property="og:description" content="Send an interactive, customizable 3D flower with your own message."><meta property="og:image" content="https://statsilk.github.io/StatFlowers/assets/social-preview.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">
+<title>Flower Cards | Formogenesis</title><meta name="description" content="Create and share an interactive 3D flower greeting card."><meta property="og:type" content="website"><meta property="og:title" content="Flower Cards · Formogenesis"><meta property="og:description" content="Send an interactive, customizable 3D flower with your own message."><meta property="og:image" content="https://statsilk.github.io/StatFlowers/assets/social-preview.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">
 <style>
 :root{font-family:Inter,system-ui,sans-serif;color:#f6eee9;background:#1b2421}*{box-sizing:border-box}body{margin:0}
 header{padding:14px clamp(15px,4vw,45px);display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid #45554c}a{color:#bde7c9}header a{text-decoration:none}header strong{font-size:18px}
@@ -20,7 +20,7 @@ button{font:inherit;cursor:pointer;border-radius:9px;padding:11px 14px;backgroun
 .recipient .editor{display:none}.recipient main{display:block}.recipient .preview{height:calc(100dvh - 62px);min-height:550px}.recipient .message{bottom:8%}
 @media(max-width:800px){main{display:block}.preview{height:65dvh;min-height:420px}.editor{padding:20px}.recipient .preview{height:calc(100dvh - 62px)}}
 </style></head><body>
-<header><strong>✿ StatFlowers <span style="color:#a9d7b2">Cards</span></strong><a href="./">Explore the flower studio</a></header>
+<header><strong>✿ Formogenesis <span style="color:#a9d7b2">Cards</span></strong><a href="./">Explore Flowers</a></header>
 <main><section class="preview" aria-label="Interactive 3D greeting card">
 <iframe id="flowerView" title="Interactive 3D flower: drag to rotate and pinch to zoom" src="./index.html?card=1"></iframe>
 <div class="message"><h1 id="titlePreview"></h1><p id="messagePreview"></p><small id="fromPreview"></small></div>
@@ -44,7 +44,7 @@ let recipient=params.get('view')==='1',ready=false;
 for(const key of keys){if(params.has(key)){const value=params.get(key).slice(0,key==='message'?500:90);if(key==='flower'&&!Object.hasOwn(colors,value))continue;if(key==='color'&&!/^#[0-9a-fA-F]{6}$/.test(value))continue;$(key).value=value;}}
 if(recipient)document.body.classList.add('recipient');
 function updateText(){$('titlePreview').textContent=$('heading').value;$('messagePreview').textContent=$('message').value;$('fromPreview').textContent=$('from').value?'With love, '+$('from').value:'';}
-function updateFlower(bloom=false){if(!ready)return;$('flowerView').contentWindow.postMessage({type:'statflowers-card',flower:$('flower').value,color:$('color').value,open:Number($('open').value),bloom},location.origin)}
+function updateFlower(bloom=false){if(!ready)return;$('flowerView').contentWindow.postMessage({type:'formogenesis-card',flower:$('flower').value,color:$('color').value,open:Number($('open').value),bloom},location.origin)}
 function encode(view=true){const p=new URLSearchParams();for(const key of keys)p.set(key,$(key).value);if(view)p.set('view','1');return location.origin+location.pathname+'#'+p.toString()}
 $('flowerView').addEventListener('load',()=>{ready=true;updateFlower(recipient)});
 for(const key of keys){$(key).addEventListener('input',()=>{updateText();updateFlower()})}

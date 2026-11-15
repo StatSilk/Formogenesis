@@ -2,13 +2,13 @@
 
 Published preview: https://statsilk.github.io/StatFlowers/petal-lab.html
 
-## Color legend (v0.2.6)
+## Color legend (v0.2.7)
 - **Orange, shape mode:** the original procedural petal surface.
 - **Green, shape mode:** a kinematic growth-stretch deformation of that surface, with spatially varying longitudinal and transverse stretches.
 - **Orange, heatmap mode:** a directional tangent-change proxy.
 - **Green, heatmap mode:** cotangent-weighted discrete mean-curvature magnitude.
 
-The blue flat baseline is **not rendered** in v0.2.6. Default shape comparison uses two different geometries. See [DIFFERENTIAL_GROWTH_EXPERIMENT.md](DIFFERENTIAL_GROWTH_EXPERIMENT.md) for the growth-stretch parameterization. It is an illustrative kinematic construction, **not** a solution of tissue growth, stress, strain compatibility, elastic force balance, or petal self-contact. In heatmap mode, orange and green use the **same procedural petal mesh** and independently normalized estimators; their colors must not be treated as equal physical units.
+The blue flat baseline is **not rendered** in v0.2.7. Default shape comparison uses two different geometries. See [DIFFERENTIAL_GROWTH_EXPERIMENT.md](DIFFERENTIAL_GROWTH_EXPERIMENT.md) for the growth-stretch parameterization. It is an illustrative kinematic construction, **not** a solution of tissue growth, stress, strain compatibility, elastic force balance, or petal self-contact. In heatmap mode, orange and green use the **same procedural petal mesh** and independently normalized estimators; their colors must not be treated as equal physical units.
 
 ## Method
 For a triangle mesh, each triangle contributes cotangents of its interior angles to weights on opposite edges. For vertex `i`, the discrete Laplace-Beltrami estimate is

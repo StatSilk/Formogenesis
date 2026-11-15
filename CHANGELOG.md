@@ -1,8 +1,13 @@
 # Changelog
 
-Notable changes to StatFlowers are documented here. This project is experimental; versions describe development milestones rather than scientific validation.
+Notable changes to Formogenesis: Flowers are documented here. Versions describe development milestones, not scientific validation.
 
-## [Unreleased] - 2026-11-15
+## [0.2.7] - 2026-11-15
+
+### Formogenesis identity
+- Adopted **Formogenesis** as the umbrella name and **Flowers** as this experiment's name, without a "Lab" suffix.
+- Updated visible application and card branding, scientific documentation, page titles and social artwork, while retaining working published URLs.
+- Kept standalone experiment boundaries so future mushrooms and fingerprint experiments can be added without forcing premature shared dependencies.
 
 ### Documentation and usability
 - Reconciled petal lab terminology and its single v0.2.6 version label with the growth-stretch and curvature experiments.
@@ -52,12 +57,12 @@ Notable changes to StatFlowers are documented here. This project is experimental
 ## [0.1.0] - 2026-11-13
 
 ### Added
-- First public-source release of the independent StatFlowers 3D flower playground.
+- First public-source release of the independent 3D Flowers playground.
 - Rose, tulip, lily, sunflower, daisy, gerbera, coneflower, and poppy families.
 - Geometric rose-style variants, editable flower parameters, growth animation and overhead views.
 - Approximate golden-angle floret arrangements for composite flower heads.
 - MIT license and scientific-accuracy notice.
 
-[Unreleased]: https://github.com/StatSilk/StatFlowers/commits/main/
+[0.2.7]: https://github.com/StatSilk/StatFlowers/commits/main/
 [0.2.6]: https://github.com/StatSilk/StatFlowers/commits/main/
 [0.1.0]: https://github.com/StatSilk/StatFlowers/commits/main/

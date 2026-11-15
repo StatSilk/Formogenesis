@@ -1,14 +1,16 @@
-# StatFlowers 🌸
+# Formogenesis
 
-StatFlowers is an experimental 3D botanical studio for exploring flower shapes, growth animations and the mathematics of nature, from floral symmetry to Fibonacci spirals.
+*Exploring the mathematics of nature's forms.*
+
+Formogenesis is an open collection of interactive experiments in natural pattern formation, mathematical geometry and growth. The first experiment, **Flowers**, explores 3D botanical shapes, bloom animations and phyllotaxis. Future experiments may explore mushrooms, fingerprints and other natural forms. The visual models are experimental, with their scientific limitations documented alongside them.
 
 ![Procedural sunflower and golden-angle floret visualization](assets/social-preview.png)
 
-*Illustrative procedural preview of sunflower phyllotaxis; the [live studio](https://statsilk.github.io/StatFlowers/) contains the interactive 3D models.*
+*Illustrative procedural preview of sunflower phyllotaxis. The [Flowers experiment](https://statsilk.github.io/StatFlowers/) contains the interactive 3D models.*
 
 ## Run the app
 
-[**Explore StatFlowers live**](https://statsilk.github.io/StatFlowers/) · [**Make a 3D greeting card**](https://statsilk.github.io/StatFlowers/cards.html) · [**Compare petal methods**](https://statsilk.github.io/StatFlowers/petal-lab.html).
+[**Explore Flowers**](https://statsilk.github.io/StatFlowers/) · [**Create a 3D flower card**](https://statsilk.github.io/StatFlowers/cards.html) · [**Compare petal methods**](https://statsilk.github.io/StatFlowers/petal-lab.html).
 
 The site runs directly in your browser. `index.html` is the interface, `app.js` contains the flower geometry and controls, and Three.js is loaded from a CDN. An internet connection is required.
 
@@ -16,7 +18,9 @@ The site runs directly in your browser. `index.html` is the interface, `app.js` 
 
 See the [v0.1.0 release notes](RELEASE_NOTES_v0.1.0.md). This is an experimental preview; botanical realism is still being refined.
 
-## Source layout
+## Source layout — Flowers experiment
+
+The existing flower application stays at the repository root for now to preserve published URLs. Each future experiment can remain independently versioned and published, with a shared Formogenesis index connecting them. Reusable visualization and math code can be extracted into shared packages when it is actually shared by more than one experiment.
 
 - `index.html`: interactive 3D studio interface and responsive layout
 - `app.js`: procedural flower meshes, growth stages, 3D renderer and interactions
@@ -49,7 +53,7 @@ For composite heads, the floret arrangement follows an idealized Vogel-type radi
 
 ## Origins
 
-Independently implemented for StatSilk. Inspired by botanical geometry approaches such as [Floraison](https://github.com/Wally869/Floraison); this project is **not a fork** and does not include Floraison source code.
+Independently implemented for this project. Inspired by botanical geometry approaches such as [Floraison](https://github.com/Wally869/Floraison); this project is **not a fork** and does not include Floraison source code.
 
 ## Changes and development status
 
