@@ -1,8 +1,8 @@
 # Petal Lab: curvature method comparison
 
-Published preview: https://statsilk.github.io/StatFlowers/petal-lab.html
+Published preview: https://statsilk.github.io/Formogenesis/petal-lab.html
 
-## Color legend (v0.2.7)
+## Color legend (v0.2.8)
 - **Orange, shape mode:** the original procedural petal surface.
 - **Green, shape mode:** a kinematic growth-stretch deformation of that surface, with spatially varying longitudinal and transverse stretches.
 - **Orange, heatmap mode:** a directional tangent-change proxy.

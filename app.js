@@ -318,7 +318,7 @@ function makeFlower(type,settings){const p={...settings},group=new THREE.Group()
 import * as THREE from 'three';
 
 
-const names={rose:'Rose',tulip:'Tulip',lily:'Lily',sunflower:'Sunflower',daisy:'Daisy',gerbera:'Gerbera',echinacea:'Coneflower',poppy:'Poppy'};
+const names={sunflower:'Sunflower',rose:'Rose',tulip:'Tulip',lily:'Lily',daisy:'Daisy',gerbera:'Gerbera',echinacea:'Coneflower',poppy:'Poppy'};
 const defs=[
  ['petals','Petals / rays',3,64,1,'Outer petal or ray count'],['layers','Petal layers',1,9,1,'Number of overlapping whorls'],
  ['open','Bloom openness',0,100,1,'How much the petals spread'],['width','Petal width',20,130,1,'Wider petals create fuller blooms'],
@@ -327,7 +327,7 @@ const defs=[
  ['stem','Stem length',20,85,1,'Capped to keep the flower in view'],
  ['angle','Divergence angle',90,160,.1,'Golden angle ≈ 137.508°'],['dome','Disc dome',0,100,1,'Height of the central flower head'],['ray','Ray droop',0,100,1,'Downward or upward angle of daisy-like rays']
 ];
-const $=id=>document.getElementById(id), controls=$('controls');let family='rose',p={...presets[family]};let mode='perspective',angleX=.47,angleY=.27,zoom=5.0;
+const $=id=>document.getElementById(id), controls=$('controls');let family='sunflower',p={...presets[family]};let mode='perspective',angleX=.47,angleY=.27,zoom=5.0;
 const canvas=$('scene'),renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor('#0d1b1b');renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.03;
 const scene=new THREE.Scene();scene.background=new THREE.Color('#112722');
 const camera=new THREE.PerspectiveCamera(38,1,.1,100);

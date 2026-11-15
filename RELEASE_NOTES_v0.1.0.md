@@ -21,8 +21,8 @@ The tulip bud has been adjusted to join the stem with a small collar instead of 
 
 ## Try the demo
 
-- [Play in browser](https://statsilk.github.io/StatFlowers/)
-- [Source repository](https://github.com/StatSilk/StatFlowers)
+- [Play in browser](https://statsilk.github.io/Formogenesis/)
+- [Source repository](https://github.com/StatSilk/Formogenesis)
 
 ## License
 

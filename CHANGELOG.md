@@ -2,19 +2,26 @@
 
 Notable changes to Formogenesis: Flowers are documented here. Versions describe development milestones, not scientific validation.
 
+## [0.2.8] - 2026-11-15
+
+### Navigation and links
+- Updated public links and social-preview metadata for the renamed Formogenesis repository and GitHub Pages path.
+- Prioritized Sunflower as the first selectable and initial flower family, and simplified the public navigation.
+- Expanded the project description to include emergent behaviours alongside natural forms.
+
 ## [0.2.7] - 2026-11-15
 
 ### Formogenesis identity
 - Adopted **Formogenesis** as the umbrella name and **Flowers** as this experiment's name, without a "Lab" suffix.
-- Updated visible application and card branding, scientific documentation, page titles and social artwork, while retaining working published URLs.
+- Updated visible application branding, scientific documentation, page titles and social artwork, while retaining working published URLs.
 - Kept standalone experiment boundaries so future mushrooms and fingerprint experiments can be added without forcing premature shared dependencies.
 
 ### Documentation and usability
 - Reconciled petal lab terminology and its single v0.2.6 version label with the growth-stretch and curvature experiments.
 - Added verified foundational phyllotaxis and lily growth/mechanics references, and clarified the mathematical limitations.
-- Updated README with card and experiment links, a procedural visual preview, source layout, and Three.js attribution.
-- Added Open Graph images for the studio and public greeting cards.
-- Added an explicit card-embed mode to hide mobile toolbars without dependence on parent-page CSS injection.
+- Updated README with experiment links, a procedural visual preview, source layout, and Three.js attribution.
+- Added Open Graph images for published pages.
+- Added an explicit embedded-view mode to hide mobile toolbars without dependence on parent-page CSS injection.
 - Clarified rose symmetry as layered staggered whorls; removed unused petal lab branches and skipped unnecessary curvature work outside heatmap mode.
 - Throttled repeated growth-geometry rebuilds on touch devices; full mobile performance benchmarks remain outstanding.
 
@@ -63,6 +70,7 @@ Notable changes to Formogenesis: Flowers are documented here. Versions describe 
 - Approximate golden-angle floret arrangements for composite flower heads.
 - MIT license and scientific-accuracy notice.
 
-[0.2.7]: https://github.com/StatSilk/StatFlowers/commits/main/
-[0.2.6]: https://github.com/StatSilk/StatFlowers/commits/main/
-[0.1.0]: https://github.com/StatSilk/StatFlowers/commits/main/
+[0.2.8]: https://github.com/StatSilk/Formogenesis/commits/main/
+[0.2.7]: https://github.com/StatSilk/Formogenesis/commits/main/
+[0.2.6]: https://github.com/StatSilk/Formogenesis/commits/main/
+[0.1.0]: https://github.com/StatSilk/Formogenesis/commits/main/

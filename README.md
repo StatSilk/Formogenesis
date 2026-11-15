@@ -1,16 +1,16 @@
 # Formogenesis
 
-*Exploring the mathematics of nature's forms.*
+*Exploring how simple rules create complex forms and behaviours.*
 
-Formogenesis is an open collection of interactive experiments in natural pattern formation, mathematical geometry and growth. The first experiment, **Flowers**, explores 3D botanical shapes, bloom animations and phyllotaxis. Future experiments may explore mushrooms, fingerprints and other natural forms. The visual models are experimental, with their scientific limitations documented alongside them.
+Formogenesis is an open collection of interactive experiments in natural pattern formation, mathematical geometry and growth. The first experiment, **Flowers**, explores 3D botanical shapes, bloom animations and phyllotaxis. Future experiments may explore mushrooms, fingerprints, collective behaviour and other emergent systems. The visual models are experimental, with their scientific limitations documented alongside them.
 
 ![Procedural sunflower and golden-angle floret visualization](assets/social-preview.png)
 
-*Illustrative procedural preview of sunflower phyllotaxis. The [Flowers experiment](https://statsilk.github.io/StatFlowers/) contains the interactive 3D models.*
+*Illustrative procedural preview of sunflower phyllotaxis. The [Flowers experiment](https://statsilk.github.io/Formogenesis/) contains the interactive 3D models.*
 
 ## Run the app
 
-[**Explore Flowers**](https://statsilk.github.io/StatFlowers/) · [**Create a 3D flower card**](https://statsilk.github.io/StatFlowers/cards.html) · [**Compare petal methods**](https://statsilk.github.io/StatFlowers/petal-lab.html).
+[**Explore Flowers**](https://statsilk.github.io/Formogenesis/) · [**Compare petal methods**](https://statsilk.github.io/Formogenesis/petal-lab.html).
 
 The site runs directly in your browser. `index.html` is the interface, `app.js` contains the flower geometry and controls, and Three.js is loaded from a CDN. An internet connection is required.
 
@@ -24,7 +24,6 @@ The existing flower application stays at the repository root for now to preserve
 
 - `index.html`: interactive 3D studio interface and responsive layout
 - `app.js`: procedural flower meshes, growth stages, 3D renderer and interactions
-- `cards.html`: customizable interactive 3D greeting cards with shareable URL settings
 - `petal-lab.html`: orange procedural / green growth-stretch petal comparison and curvature heatmaps
 - `PETAL_CURVATURE_METHODS.md`: discrete curvature mathematics and scientific limitations
 - `DIFFERENTIAL_GROWTH_EXPERIMENT.md`: kinematic growth-stretch parameterization and references
@@ -33,12 +32,11 @@ The existing flower application stays at the repository root for now to preserve
 
 ## Features
 
-- Eight flower families including rose, tulip, lily, sunflower, daisy, gerbera, coneflower, poppy
+- Eight flower families including sunflower, rose, tulip, lily, daisy, gerbera, coneflower, poppy
 - Several rose styles, inspired by natural and geometric forms
 - 3D and top-down views, soft shadows, petal controls and colors
 - Bud-to-bloom timeline and growth animation
 - Golden-angle/Fibonacci phyllotaxis experiments for composite flower heads
-- Customizable 3D flower greeting cards with occasion, colors, bloom openness, and personalized messages
 - Side-by-side petal geometry laboratory comparing procedural surfaces, kinematic growth-stretch deformation, and curvature estimators
 
 ## Scientific accuracy

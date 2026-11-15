@@ -1,6 +1,6 @@
 # Differential-growth petal experiment
 
-Preview: https://statsilk.github.io/StatFlowers/petal-lab.html
+Preview: https://statsilk.github.io/Formogenesis/petal-lab.html
 
 ## Model comparison
 
