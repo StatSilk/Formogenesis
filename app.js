@@ -561,8 +561,8 @@ const defs=[
  ['angle','Divergence angle',90,160,.1,'Golden angle ≈ 137.508°'],['dome','Disc dome',0,100,1,'Height of the central flower head'],['ray','Ray droop',0,100,1,'Downward or upward angle of daisy-like rays']
 ];
 const $=id=>document.getElementById(id), controls=$('controls');let family='sunflower',p={...presets[family]};let mode='perspective',angleX=.47,angleY=.27,zoom=5.0;
-const canvas=$('scene'),renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor('#0d1b1b');renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.03;
-const scene=new THREE.Scene();scene.background=new THREE.Color('#112722');
+const canvas=$('scene'),renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor('#000000',0);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.03;
+const scene=new THREE.Scene();scene.background=null;
 const camera=new THREE.PerspectiveCamera(38,1,.1,100);
 const hemi=new THREE.HemisphereLight('#fff2ec','#314f42',.95);scene.add(hemi);
 const key=new THREE.DirectionalLight('#fff3eb',2.2);key.position.set(-3,7,6);key.castShadow=true;
@@ -708,7 +708,21 @@ for(const [label,value] of [['Golden 137.5°',golden],['137°',137],['140°',140
 $('resetFlower').onclick=()=>setFlower(family);
 $('replayGrowth').onclick=replayGrowth;
 $('growthStage').oninput=e=>{stopGrowth();renderFlower(Number(e.target.value)/100)};
-$('download').onclick=()=>{render();const a=document.createElement('a');a.download=`flower-shape-lab-${family}.png`;a.href=renderer.domElement.toDataURL('image/png');a.click()};
+$('download').onclick=async()=>{
+ render();
+ const image=new Image();image.src='./assets/wild-garden-blur.jpg';
+ try{await image.decode()}catch{}
+ const output=document.createElement('canvas');output.width=canvas.width;output.height=canvas.height;
+ const ctx=output.getContext('2d');
+ if(image.naturalWidth){
+  const scale=Math.max(output.width/image.naturalWidth,output.height/image.naturalHeight);
+  const w=image.naturalWidth*scale,h=image.naturalHeight*scale;
+  ctx.drawImage(image,(output.width-w)/2,(output.height-h)/2,w,h);
+  ctx.fillStyle='rgba(8,24,19,.14)';ctx.fillRect(0,0,output.width,output.height);
+ }else{ctx.fillStyle='#23412a';ctx.fillRect(0,0,output.width,output.height)}
+ ctx.drawImage(renderer.domElement,0,0);
+ const a=document.createElement('a');a.download=`flower-shape-lab-${family}.png`;a.href=output.toDataURL('image/png');a.click();
+};
 // Dedicated orthographic 2D representation of the same divergence-angle rule.
 function refreshOverview(){
  const c=$('patternCanvas'),ctx=c.getContext('2d'),size=300;
