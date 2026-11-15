@@ -2,6 +2,14 @@
 
 Notable changes to Formogenesis: Flowers are documented here. Versions describe development milestones, not scientific validation.
 
+## [0.3.3] - 2026-11-15
+
+### Frangipani visual correction
+- Fixed a vertex-colour interpolation aliasing bug that rendered mature corolla lobes dark green.
+- Connected each petal sector at the shared corolla throat, closing unrealistic star-shaped gaps between the five lobes.
+- Replaced the pale hollow cylindrical centre with a recessed golden throat and a matching tube-to-lobe colour gradient.
+- Retained the green juvenile bud, one-sided overlap and smooth open petals; these remain illustrative geometry, not a validated tissue-growth model.
+
 ## [0.3.2] - 2026-11-15
 
 ### Vogel first, and frangipani

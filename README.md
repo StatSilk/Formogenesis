@@ -68,6 +68,8 @@ The frangipani is a simplified five-lobed Plumeria corolla with consistent overl
 
 Independently implemented for this project. Inspired by botanical geometry approaches such as [Floraison](https://github.com/Wally869/Floraison); this project is **not a fork** and does not include Floraison source code.
 
+The white/yellow Plumeria view uses a golden tubular throat and five overlapping lobes; the mature corolla is ivory with a soft yellow centre, while the immature bud is green. Its geometry remains an illustrative model.
+
 ## Changes and development status
 
 See [CHANGELOG.md](CHANGELOG.md) for updates, experimental limitations and release history. The rose-growth model currently follows illustrative development stages, not a validated cellular-growth simulation.

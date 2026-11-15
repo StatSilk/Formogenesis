@@ -272,7 +272,6 @@ function frangipani(group,p,headY){
  const opening=smooth((age-.28)/.67)*p.open/100;
  const throatY=headY+.13;
  const rimY=headY+.40;
- const baseColor=new THREE.Color('#fff4d2');
  const petalColor=new THREE.Color(p.color);
  const green=new THREE.Color('#66995c');
  // The corolla tube is shared by all five lobes, avoiding five disconnected
@@ -284,10 +283,26 @@ function frangipani(group,p,headY){
   new THREE.Vector2(.102,throatY+.217),
   new THREE.Vector2(.142,rimY)
  ];
- const tube=new THREE.Mesh(new THREE.LatheGeometry(profile,48),
-  new THREE.MeshStandardMaterial({color:green.clone().lerp(baseColor,maturity*.95),
-   roughness:.92,metalness:0,side:THREE.DoubleSide}));
+ const tubeGeometry=new THREE.LatheGeometry(profile,48);
+ const tubePosition=tubeGeometry.getAttribute('position');
+ const tubeColors=[],tubeGold=new THREE.Color('#ffce61');
+ for(let q=0;q<tubePosition.count;q++){
+  const t=smooth((tubePosition.getY(q)-throatY)/(rimY-throatY));
+  const adult=new THREE.Color('#eeba50').lerp(tubeGold,t);
+  const pigment=green.clone().lerp(adult,maturity);
+  tubeColors.push(pigment.r,pigment.g,pigment.b);
+ }
+ tubeGeometry.setAttribute('color',new THREE.Float32BufferAttribute(tubeColors,3));
+ const tube=new THREE.Mesh(tubeGeometry,
+  new THREE.MeshStandardMaterial({vertexColors:true,roughness:.96,
+   metalness:0,side:THREE.DoubleSide}));
  tube.castShadow=true;tube.receiveShadow=true;group.add(tube);
+ // A recessed golden throat, instead of a hollow cylinder or raised button.
+ const throat=new THREE.Mesh(new THREE.CircleGeometry(.105,48),
+  new THREE.MeshStandardMaterial({color:green.clone().lerp(
+   new THREE.Color('#e9ab34'),maturity),roughness:1,side:THREE.DoubleSide}));
+ throat.rotation.x=-Math.PI/2;
+ throat.position.y=rimY-.032;group.add(throat);
  const count=5,segments=52,across=28;
  // Sinistrorse visual convention: a consistently directed overlap.
  // This is a geometric encoding of bud aestivation, not a measured growth law.
@@ -301,14 +316,18 @@ function frangipani(group,p,headY){
   const fn=(t,u)=>{
    // Rounded outer lobe; the broad region ends in a soft circular tip.
    const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*t)),.43);
-   const edge=envelope*(.78+.22*t);
-   const halfArc=breadth*edge;
+   const edge=envelope*(.66+.34*t);
+   // At the fused base, each sector spans a fifth of the full ring.
+   // Interpolate toward rounded independent lobes: adjacent petals stay
+   // connected near the throat, then overlap and finally separate at tips.
+   const transition=smooth(t);
+   const halfArc=(Math.PI/count*1.022)*(1-transition)+breadth*edge*transition;
    const shear=winding*twist*Math.pow(t,.82)*(.92-.62*opening);
    const az=theta+u*halfArc+shear+
     .022*Math.sin(j*2.7+t*5.0)*t*(1-Math.abs(u));
    const rr=.14+length*t*(.065+.96*opening)+
     .048*(1-u*u)*Math.sin(Math.PI*t)*opening;
-   const valley=.047*u*(.65+.35*t)*(1-opening);
+   const valley=.047*u*t*(.65+.35*t)*(1-opening);
    let y=rimY+length*t*(.94-.86*opening)-
     (.065+.15*curl)*Math.pow(t,2.2)*opening+valley;
    // Shallow transverse cupping and a softly reflexed rim.
@@ -320,11 +339,13 @@ function frangipani(group,p,headY){
   const colors=[],paleYellow=new THREE.Color('#ffd468');
   for(let side=0;side<2;side++)for(let i=0;i<=segments;i++)for(let q=0;q<=across;q++){
    const t=i/segments,u=q/across*2-1;
-   const c=paleYellow.clone().lerp(petalColor,smooth((t-.09)/.76));
-   // Yellow is most intense in the tube; the outer rounded tips are lighter.
-   c.lerp(new THREE.Color('#fffef6'),.12*smooth((t-.56)/.43));
-   c.multiplyScalar(1-.042*Math.abs(u)*Math.sin(Math.PI*t)+.018*Math.sin(j*1.7+t*3.0));
-   c.copy(green).lerp(c,.20+.80*maturity);
+   // Keep the adult pigment separate from the juvenile green. Copying
+   // green into the same object previously erased the adult colour.
+   const adult=paleYellow.clone().lerp(petalColor,smooth((t-.035)/.73));
+   // Yellow radiates outward from the tubular throat and fades to ivory.
+   adult.lerp(new THREE.Color('#fffef6'),.12*smooth((t-.56)/.43));
+   adult.multiplyScalar(1-.042*Math.abs(u)*Math.sin(Math.PI*t)+.018*Math.sin(j*1.7+t*3.0));
+   const c=green.clone().lerp(adult,maturity);
    colors.push(c.r,c.g,c.b);
   }
   geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
