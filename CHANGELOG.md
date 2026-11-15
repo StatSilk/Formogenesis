@@ -2,6 +2,15 @@
 
 Notable changes to Formogenesis: Flowers are documented here. Versions describe development milestones, not scientific validation.
 
+## [0.2.9] - 2026-11-15
+
+### Growth-metric and bilayer experiment
+- Introduced a small constrained numerical search over cup and edge-wave surfaces that minimizes mismatch against a prescribed anisotropic growth metric.
+- Ripple half-wave count now responds to edge-growth strain, assumed thickness, petal length and mesh resolution, with a heuristic strip-instability preference instead of a fixed sine frequency.
+- Added an equal-layer bilayer circular-arc bend based on κ ≈ 3Δε/(2h), with strain and thickness controls in stated units in the Petal Lab.
+- Replaced hard-coded transverse sine ruffles in generic petals, rose rims and composite rays with growth-informed shape terms.
+- Documented the method's constraints, uncalibrated parameters, scientific references, and outstanding validation needs. Other flower geometry remains partly procedural.
+
 ## [0.2.8] - 2026-11-15
 
 ### Navigation and links
@@ -70,6 +79,7 @@ Notable changes to Formogenesis: Flowers are documented here. Versions describe 
 - Approximate golden-angle floret arrangements for composite flower heads.
 - MIT license and scientific-accuracy notice.
 
+[0.2.9]: https://github.com/StatSilk/Formogenesis/commits/main/
 [0.2.8]: https://github.com/StatSilk/Formogenesis/commits/main/
 [0.2.7]: https://github.com/StatSilk/Formogenesis/commits/main/
 [0.2.6]: https://github.com/StatSilk/Formogenesis/commits/main/

@@ -24,9 +24,10 @@ The existing flower application stays at the repository root for now to preserve
 
 - `index.html`: interactive 3D studio interface and responsive layout
 - `app.js`: procedural flower meshes, growth stages, 3D renderer and interactions
-- `petal-lab.html`: orange procedural / green growth-stretch petal comparison and curvature heatmaps
+- `petal-lab.html`: orange reference / green growth-metric and bilayer comparison, plus curvature heatmaps
+- `growth-metric.js`: reduced-order growth metric, candidate-mode fitting and equal-layer bilayer bending
 - `PETAL_CURVATURE_METHODS.md`: discrete curvature mathematics and scientific limitations
-- `DIFFERENTIAL_GROWTH_EXPERIMENT.md`: kinematic growth-stretch parameterization and references
+- `DIFFERENTIAL_GROWTH_EXPERIMENT.md`: growth metric, numerical model, bilayer derivation, limitations and references
 - `assets/social-preview.png`: reproducible procedural preview; source in `scripts/generate-social-preview.mjs`
 - `CHANGELOG.md`: development history and model limitations
 
@@ -37,11 +38,11 @@ The existing flower application stays at the repository root for now to preserve
 - 3D and top-down views, soft shadows, petal controls and colors
 - Bud-to-bloom timeline and growth animation
 - Golden-angle/Fibonacci phyllotaxis experiments for composite flower heads
-- Side-by-side petal geometry laboratory comparing procedural surfaces, kinematic growth-stretch deformation, and curvature estimators
+- Side-by-side petal geometry laboratory comparing procedural and growth-metric-fitted surfaces, idealized bilayer bending, and curvature estimators
 
 ## Scientific accuracy
 
-**Experimental model:** Flower forms and bloom animations are illustrative approximations, not mathematically exact reconstructions or predictive plant biology. The golden-angle model represents idealized phyllotaxis; real flowers differ substantially in development.
+**Experimental model:** Flower forms and bloom animations are illustrative approximations, not mathematically exact reconstructions or predictive plant biology. The golden-angle model represents idealized phyllotaxis; real flowers differ substantially in development. The experimental growth-metric model fits a limited family of candidate shapes to prescribed in-plane lengths, and uses an idealized equal-layer bilayer formula for curling; it is not a validated shell or tissue-growth solver. See [method and limitations](DIFFERENTIAL_GROWTH_EXPERIMENT.md).
 
 For composite heads, the floret arrangement follows an idealized Vogel-type radial construction, based on the golden angle. This geometric model is distinct from a developmental or mechanical simulation. See:
 

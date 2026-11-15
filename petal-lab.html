@@ -3,53 +3,62 @@
 <style>
 :root{font:14px system-ui,sans-serif;color:#e8f5ee;background:#0d1e1a}*{box-sizing:border-box}body{margin:0}header{padding:13px 17px;display:flex;gap:15px;align-items:center;justify-content:space-between;border-bottom:1px solid #36564b}a{color:#a4e9bd}main{display:grid;grid-template-columns:minmax(0,1fr) 315px;min-height:calc(100dvh - 53px)}#view{width:100%;height:100%;min-height:520px;touch-action:none;display:block;background:#112620}aside{padding:15px;overflow:auto;border-left:1px solid #36564b}h1{font-size:17px;margin:0}h2{font-size:15px}p,small{color:#b5cbbd;line-height:1.5}label{display:flex;justify-content:space-between;gap:8px;margin-top:14px}input[type=range],select{width:100%;margin-top:7px;accent-color:#83d5a6}select,button{color:#ecf9ef;background:#224637;border:1px solid #507965;border-radius:8px;padding:9px}button{cursor:pointer}.buttons{display:flex;gap:6px;flex-wrap:wrap}.buttons button{flex:1}.active{background:#357c56}.metric{font-variant-numeric:tabular-nums;padding:8px 0;border-bottom:1px solid #345145}#overlay{position:absolute;top:70px;left:14px;background:#11291ecf;padding:10px;border-radius:9px;pointer-events:none;max-width:280px}.stage{position:relative;min-height:520px}footer{font-size:11px;color:#a9bdb0;margin-top:15px}@media(max-width:800px){main{display:block}.stage{height:62dvh;min-height:340px}#view{min-height:340px}aside{border-left:0;border-top:1px solid #36564b}header{flex-wrap:wrap}}
 </style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.181.0/build/three.module.js"}}</script></head>
-<body><header><h1>✿ Formogenesis · Petal geometry <span id="buildVersion" style="font-size:12px;color:#9fe3b5;white-space:nowrap">v0.2.8</span></h1><a href="./index.html">← Flowers</a></header><main><div class="stage"><canvas id="view"></canvas><div id="overlay">Drag to rotate · pinch to zoom<br><span style="color:#ffb477">● Orange: procedural surface</span><br><span style="color:#b3f0a3">● Green: kinematic growth-stretch model</span></div></div><aside><h2>Experimental petal comparison <small style="font-weight:normal">· updated 15 Nov 2026</small></h2><p>Compare a procedural surface (orange) with a spatially varying growth-stretch deformation (green). Switch to heatmaps to compare two curvature estimators on identical procedural geometry. Neither method simulates cellular growth or thin-shell mechanics.</p>
+<body><header><h1>✿ Formogenesis · Petal geometry <span id="buildVersion" style="font-size:12px;color:#9fe3b5;white-space:nowrap">v0.2.9</span></h1><a href="./index.html">← Flowers</a></header><main><div class="stage"><canvas id="view"></canvas><div id="overlay">Drag to rotate · pinch to zoom<br><span style="color:#ffb477">● Orange: procedural surface</span><br><span style="color:#b3f0a3">● Green: growth-metric fit + bilayer bend</span></div></div><aside><h2>Experimental petal comparison <small style="font-weight:normal">· growth mechanics preview</small></h2><p>Compare a procedural reference (orange) with a reduced-order metric fit (green). Center-versus-edge growth drives cupping and ripple selection; an upper–lower strain mismatch drives bilayer curl. Heatmap mode still compares curvature estimators on identical reference geometry.</p>
 <label for="flower">Flower</label><select id="flower"><option value="rose">Rose-like whorl</option><option value="tulip">Tulip-like whorl</option></select>
 <label for="layout">Experiment</label><select id="layout"><option value="pair">Side-by-side petals</option><option value="whorl">Full flower whorls</option></select>
 <label for="colorMode">Surface display</label><select id="colorMode"><option value="pigment">Shape comparison, soft colors</option><option value="curvature">Procedural vs growth model</option><option value="heatmap">Curvature estimators (same shape)</option></select>
 <div id="sliders"></div>
 <div class="buttons" style="margin-top:16px"><button id="reset">Reset</button><button id="animate">▶ Bloom</button></div>
-<div class="metric" id="triangles"></div><div class="metric" id="timing"></div><div class="metric" id="fps"></div>
-<footer><strong>Scientific status:</strong> In shape mode, green is a kinematic growth-stretch surface, not a biological differential-growth solver or elastic equilibrium solution. In heatmap mode both colors use the same procedural mesh: orange shows an uncalibrated directional tangent-change proxy, green a cotangent-weighted discrete mean-curvature magnitude estimate. The two heatmaps are normalized independently; their color scales are not equal physical units. Correlated variation is deterministic and illustrative. Neither collision freedom nor anatomical accuracy is guaranteed. Geometry rebuild times are device-specific and exclude shader compilation.</footer>
+<div class="metric" id="growthMetrics" aria-live="polite"></div><div class="metric" id="triangles"></div><div class="metric" id="timing"></div><div class="metric" id="fps"></div>
+<footer><strong>Scientific status:</strong> Green minimizes a growth-metric mismatch over a small family of candidate cup/ripple surfaces with bending and core-restraint penalties; the ripple mode is informed by a strip-instability scale, rather than fitted from botanical scans. This is <em>not</em> a full nonlinear thin-shell equilibrium or cellular-growth simulation. Bilayer curvature uses the equal-thickness, equal-modulus strip approximation κ = 3Δε/(2h), with assumed millimetre dimensions and bounded total rotation. The model is qualitative, uncalibrated and does not solve collisions. Heatmap mode compares two independently normalized curvature proxies on identical geometry; colors are not equal physical units. Mobile rebuild times exclude shader compilation.</footer>
 </aside></main><script type="module">
 import * as THREE from 'three';
+import {fitGrowthMetric,metricHeight,bilayerArc} from './growth-metric.js';
 const $=id=>document.getElementById(id), canvas=$('view');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setClearColor('#12251f');renderer.outputColorSpace=THREE.SRGBColorSpace;
 const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(42,1,.1,100);
 scene.add(new THREE.HemisphereLight(0xffffff,0x42604b,2));
 const light=new THREE.DirectionalLight(0xffe7d4,2.5);light.position.set(-4,7,6);scene.add(light);
 const group=new THREE.Group();scene.add(group);
-const defs=[['cup','Transverse cupping',0,100,58],['bend','Longitudinal bend',0,100,48],['twist','Twist',-80,80,12],['ruffle','Edge undulation',0,100,12],['variation','Correlated variation',0,100,22],['growth','Bloom stage',0,100,100],['segments','Mesh resolution',8,48,28]];
+const defs=[
+ ['center','Center excess growth (%)',0,18,6],
+ ['edge','Edge excess growth (%)',0,24,10],
+ ['mismatch','Upper − lower strain (0.1%)',-12,12,3],
+ ['thickness','Tissue thickness (0.1 mm)',1,10,3],
+ ['twist','Twist',-80,80,12],
+ ['variation','Correlated variation',0,100,22],
+ ['growth','Bloom stage',0,100,100],
+ ['segments','Mesh resolution',8,48,28]
+];
 const state=Object.fromEntries(defs.map(([k,a,b,c,d])=>[k,d]));
 for(const [key,label,min,max,initial] of defs){const row=document.createElement('div');row.innerHTML='<label for="s-'+key+'">'+label+' <output id="o-'+key+'">'+initial+'</output></label><input type="range" id="s-'+key+'" min="'+min+'" max="'+max+'" value="'+initial+'">';$('sliders').append(row);$('s-'+key).addEventListener('input',e=>{state[key]=+e.target.value;$('o-'+key).textContent=e.target.value;rebuild()})}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),smooth=x=>{x=clamp(x,0,1);return x*x*(3-2*x)};
 const vec=(x,y,z)=>new THREE.Vector3(x,y,z);
+let activeFit=null;
 function surface(t,u,phi,index,flower,shapeMode){
- const growth=smooth(state.growth/100),bend=state.bend/100,cup=state.cup/100,twist=state.twist/80,ruffle=state.ruffle/100;
- const variation=state.variation/100;
- // Low-frequency correlated deviations shared by neighboring points.
+ const stage=smooth(state.growth/100),variation=state.variation/100;
  const correlated=variation*(.065*Math.sin(index*1.73)+.035*Math.sin(index*.67));
  const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*Math.pow(t,.82))),.72);
  const width=(flower==='rose'?.46:.40)*envelope*(1+correlated);
  const localX=u*width;
- const rise=(flower==='rose'?.92:1.15)*t*(.63+.37*growth);
- const spread=(flower==='rose'?.63:.39)*smooth(t)*(growth);
- const longitudinal=bend*.35*t*t*(1-.40*growth);
- const transverse=cup*.19*u*u*Math.sin(Math.PI*t*.82);
- const edge=ruffle*.027*Math.pow(Math.abs(u),3)*Math.pow(t,2)*Math.sin(6*u+index*.61);
+ const twist=state.twist/80;
  const angular=phi+twist*.20*t*t+variation*.025*Math.sin(index*.7+3*t);
- const improved=shapeMode==="growth";
- // Spatially varying growth stretch field; kinematic hypothesis, not a mechanics solver.
- const stage=growth,ds=(state.bend/100)*.38*stage,du=(state.cup/100)*.34*stage;
- // Growth deformation fades at the distal tip to preserve the baseline rounded silhouette.
- const tipFade=1-smooth((t-.52)/.30);
- let grownT=t;
- if(improved){grownT=0;const n=12;for(let k=0;k<n;k++){const q=(k+.5)*t/n;grownT+=(1+ds*(.35+.65*q)*(1-.28*u*u))*t/n;}}
- const grownX=improved?localX*(1+tipFade*du*(.3+.7*t)*(1-.18*u*u)):localX;
- const growthCup=improved?tipFade*du*.24*u*u*Math.sin(Math.PI*t):0;
- const radial=.15+spread+longitudinal+transverse+(improved?tipFade*ds*.22*t*t-growthCup*.28:0);
- const y=.1+(improved?rise*(t+(grownT-t)*tipFade):rise)-(flower==='rose'?.18:.10)*growth*t*t+edge-cup*.06*(1-u*u)*Math.sin(Math.PI*t)+growthCup;
- return vec(radial*Math.cos(angular)-grownX*Math.sin(angular),y,radial*Math.sin(angular)+grownX*Math.cos(angular));
+ const rise=(flower==='rose'?.92:1.15)*t*(.63+.37*stage);
+ const spread=(flower==='rose'?.63:.39)*smooth(t)*stage;
+ let radial=.15+spread+.07*t*t;
+ let y=.10+rise-(flower==='rose'?.18:.10)*stage*t*t;
+ // Orange retains a smooth geometrical reference (without fixed sine ruffle count).
+ y+=.07*(1-u*u)*Math.sin(Math.PI*t);
+ if(shapeMode==='growth'&&activeFit){
+  const lengthWorld=flower==='rose'?.98:1.16;
+  const h=metricHeight(t,u,activeFit);
+  const arc=bilayerArc(t,{deltaEpsilon:state.mismatch*.001*stage,
+    thicknessMm:state.thickness*.1,lengthMm:activeFit.lengthMm});
+  y+=h*lengthWorld+arc.axial*lengthWorld;
+  radial+=arc.outward*lengthWorld*.84;
+ }
+ return vec(radial*Math.cos(angular)-localX*Math.sin(angular),y,
+  radial*Math.sin(angular)+localX*Math.cos(angular));
 }
 function createPetal(phi,index,flower,method){
  const N=state.segments,M=Math.max(8,Math.round(N*.65)),vertices=[],indices=[],colors=[],proxies=[];
@@ -98,6 +107,18 @@ function rebuild(){
  const t0=performance.now();
  for(const m of [...group.children]){group.remove(m);m.traverse(o=>{o.geometry?.dispose();if(o.material)o.material.dispose()})}
  totalTriangles=0;const flower=$('flower').value,whorl=$('layout').value==='whorl';
+ const stage=smooth(state.growth/100);
+ activeFit=fitGrowthMetric({centerExcess:state.center/100*stage,
+  edgeExcess:state.edge/100*stage,thicknessMm:state.thickness*.1,
+  lengthMm:flower==='rose'?38:48,widthRatio:flower==='rose'?.43:.35,
+  meshResolution:state.segments});
+ const arc=bilayerArc(1,{deltaEpsilon:state.mismatch*.001*stage,
+  thicknessMm:state.thickness*.1,lengthMm:activeFit.lengthMm});
+ const waves=activeFit.mode?activeFit.mode+' half-waves, λ≈'+
+  activeFit.wavelengthMm.toFixed(1)+' mm':'no edge waves';
+ $('growthMetrics').textContent='Metric fit: '+waves+
+  ' · RMS mismatch ≈ '+(activeFit.metricError*100).toFixed(1)+
+  '% · bilayer κ≈'+arc.curvature.toFixed(4)+' mm⁻¹';
  const count=whorl?(flower==='rose'?9:6):1;
  for(let side=0;side<2;side++){const method=['proxy','growth'][side];
   for(let i=0;i<count;i++){const petal=createPetal(i*Math.PI*2/count+(i%2)*.05,i,flower,method);

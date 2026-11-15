@@ -1,5 +1,6 @@
 
 
+import {fitGrowthMetric,metricHeight,bilayerArc} from './growth-metric.js';
 const TAU=Math.PI*2, clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),rad=d=>d*Math.PI/180;
 const golden=137.507764;
 const presets={
@@ -33,34 +34,41 @@ function meshOfSurface(fn,segT=18,segU=12,thickness=0.005){
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));g.setIndex(inds);g.computeVertexNormals();return g;
 }
 function petalSurface(spec){
- const {base,phi,length,width,opening,curl,ruffle,twist,tipRound,rose=false,q=0,seed=0}=spec;
+ const {base,phi,length,width,opening,curl,ruffle,twist,tipRound,rose=false,q=0,seed=0,thicknessMm=.30}=spec;
+ // Metric-derived candidate modes and cup/ripple amplitudes.
+ const fit=fitGrowthMetric({centerExcess:.04,
+  edgeExcess:clamp(ruffle*5.5,0,.24),thicknessMm,lengthMm:42,
+  widthRatio:.35,meshResolution:30});
  return (t,u)=>{
- const wShape=Math.pow(Math.max(0,Math.sin(Math.PI*Math.pow(t,.77))),.64);
- const wide=width*wShape*(.76+tipRound*.24);
- const lateral=u*wide;
- const ruffleWave=ruffle*Math.pow(t,2.4)*Math.pow(Math.abs(u),3)*Math.sin(5.2*u+seed*1.7);
- const lateralCurve=twist*Math.pow(t,1.6)*(u*u+.1);
- let r,y;
- if(rose){
-   // Inner petals are upright, slender and tightly folded. Outer petals cradle them in a rounded cup.
+  const wShape=Math.pow(Math.max(0,Math.sin(Math.PI*Math.pow(t,.77))),.64);
+  const wide=width*wShape*(.76+tipRound*.24),lateral=u*wide;
+  const lateralCurve=twist*Math.pow(t,1.6)*(u*u+.1);
+  const height=metricHeight(t,u,fit)*length*.68*(.35+.65*opening);
+  const arc=bilayerArc(t,{deltaEpsilon:curl*.003*opening,thicknessMm,lengthMm:42});
+  let r,y;
+  if(rose){
    const spread=(.18+.82*q)*opening;
-   r=.07+q*.72 + length*(.28+spread*.84)*Math.pow(t,.87);
-   const baseY=.13+q*.13;
-   const top=.80*(1-q)+.37*q;
+   r=.07+q*.72+length*(.28+spread*.84)*Math.pow(t,.87);
+   const baseY=.13+q*.13,top=.80*(1-q)+.37*q;
    y=baseY+top*Math.sin(Math.PI*t*.77)-(.13+.22*q)*opening*Math.pow(t,2.4);
-   y+=curl*.18*u*u*Math.pow(t,3)+ruffleWave;
- }else{
+  }else{
    r=.04+length*(.2+.8*opening)*Math.pow(t,.86);
-   y=length*(.95-.60*opening)*t-curl*.34*Math.pow(t,2.6)+ruffleWave;
- }
- // transverse cupping and rippling. Width changes independently of radial spread.
- y+= (rose?.11:.09)*(1-u*u)*Math.sin(Math.PI*t);
- const theta=phi+lateral/(Math.max(.20,r+.18))*.46+lateralCurve;
- const R=r+.07*(1-u*u)*Math.sin(Math.PI*t);
- return [base[0]+R*Math.cos(theta),base[1]+y,base[2]+R*Math.sin(theta)];
+   y=length*(.95-.60*opening)*t;
+  }
+  // Growth-metric cupping/edge waves plus equal-layer bilayer bending.
+  y+=height+arc.axial*length*.65;
+  r+=arc.outward*length*.30;
+  y+=(rose?.025:.018)*(1-u*u)*Math.sin(Math.PI*t);
+  const theta=phi+lateral/(Math.max(.20,r+.18))*.46+lateralCurve;
+  const R=r+.025*(1-u*u)*Math.sin(Math.PI*t);
+  return [base[0]+R*Math.cos(theta),base[1]+y,base[2]+R*Math.sin(theta)];
  };
 }
-function newPetal(parent,opts,color,thickness){let geo=meshOfSurface(petalSurface(opts),30,18,thickness),m=new THREE.Mesh(geo,material(color));m.castShadow=true;m.receiveShadow=true;parent.add(m);}
+function newPetal(parent,opts,color,thickness){
+ const mm=clamp(thickness*7,.12,.8);
+ const geo=meshOfSurface(petalSurface({...opts,thicknessMm:mm}),30,18,thickness);
+ const m=new THREE.Mesh(geo,material(color));m.castShadow=true;m.receiveShadow=true;parent.add(m);
+}
 function stemAndLeaves(group,p,headY,type){
  const adultLength=1.2+p.stem/100*2.0;
  const stage=clamp(p.growth??1,0,1);
@@ -118,6 +126,8 @@ function rose(group,p,headY){
  const style=p.roseStyle||'natural';
  const isCup=style==='cup',isRosette=style==='rosette',isSpiral=style==='spiral';
  const matureOpen=p.open/100,countBase=Math.max(5,Math.min(11,p.petals));
+ const roseGrowthFit=fitGrowthMetric({centerExcess:.025,edgeExcess:p.ruffle/100*.11,
+  thicknessMm:.15+p.thickness*.003,lengthMm:38,widthRatio:.38,meshResolution:52});
  // The green juvenile bud stays compact; sepals enlarge only slightly as they reflex.
  const juvenile=phase(.08,.34),sepalSpread=phase(.15,.39);
  const greenScale=.66+.17*juvenile;
@@ -173,7 +183,7 @@ function rose(group,p,headY){
     y+=.055*(1-u*u)*Math.sin(Math.PI*t);
     y-=opening*(.02+.075*q)*Math.pow(t,3);
     y-=.035*u*u*upper;
-    y+=(p.ruffle/100)*.007*Math.sin(3*u+seed*.23)*upper;
+    y+=metricHeight(t,u,roseGrowthFit)*.045*upper;
     return [rr*Math.cos(az),y,rr*Math.sin(az)];
    };
    if(emergence>.005)organicPetal(group,fn,p.color,layer,seed,.007+p.thickness/100*.013);
@@ -242,6 +252,8 @@ function whorl(group,p,headY,type){
  }
 }
 function discFlower(group,p,headY,type){
+ const rayGrowthFit=fitGrowthMetric({centerExcess:.015,edgeExcess:p.ruffle/100*.12,
+  thicknessMm:.18+p.thickness*.003,lengthMm:35,widthRatio:.30,meshResolution:52});
  const age=clamp(p.growth??1,0,1),n=Math.max(8,p.petals),radius=type==='echinacea'?.57:.52, dome=(p.dome/100)*(type==='echinacea'?.67:.40)+.08;
  // Ray florets begin more upright and swing out as they mature; the openness
  // slider controls the final inclination while the growth stage controls timing.
@@ -290,7 +302,7 @@ function discFlower(group,p,headY,type){
    const droop=cone ? (.15+(.28+.70*p.ray/100)*spread+.06*Math.sin(i*2.12))*(t*t*(1.08-.08*t)) : gerbera ? (.07+(p.ray/100)*.19+.09*Math.sin(i*2.51+k*1.9)+.06*(k===0?1:-1))*spread*t*t : ((p.ray/100-.5)*.24+.046*Math.sin(i*2.4+k*1.37))*t*t*spread;
    const tipCurl=(p.curl/100)*(cone?.04:.10)*t*t*t*spread;
    const ridge=(gerbera?.075:.085)*(1-u*u)*Math.sin(Math.PI*t)+.024*Math.sin(Math.PI*t)+(gerbera?.018*Math.cos(u*7.3)*Math.sin(Math.PI*t):0);
-   const edgeWave=(p.ruffle/100)*.010*Math.sin(5*u+2*t)*Math.pow(t,2);
+   const edgeWave=metricHeight(t,u,rayGrowthFit)*.095;
    return [rr*Math.cos(th),headY+.075+upright+ridge+edgeWave-droop-tipCurl,rr*Math.sin(th)];
   };
   organicPetal(group,fn,p.color,k,i+103*k,.01+p.thickness/100*.024);

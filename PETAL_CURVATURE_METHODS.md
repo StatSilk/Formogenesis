@@ -2,13 +2,13 @@
 
 Published preview: https://statsilk.github.io/Formogenesis/petal-lab.html
 
-## Color legend (v0.2.8)
-- **Orange, shape mode:** the original procedural petal surface.
-- **Green, shape mode:** a kinematic growth-stretch deformation of that surface, with spatially varying longitudinal and transverse stretches.
+## Color legend (v0.2.9)
+- **Orange, shape mode:** a smooth procedural reference petal without an imposed fixed-frequency edge ruffle.
+- **Green, shape mode:** a reduced-order growth-metric fit with center-driven cupping, edge-growth mode selection and idealized bilayer curl.
 - **Orange, heatmap mode:** a directional tangent-change proxy.
 - **Green, heatmap mode:** cotangent-weighted discrete mean-curvature magnitude.
 
-The blue flat baseline is **not rendered** in v0.2.7. Default shape comparison uses two different geometries. See [DIFFERENTIAL_GROWTH_EXPERIMENT.md](DIFFERENTIAL_GROWTH_EXPERIMENT.md) for the growth-stretch parameterization. It is an illustrative kinematic construction, **not** a solution of tissue growth, stress, strain compatibility, elastic force balance, or petal self-contact. In heatmap mode, orange and green use the **same procedural petal mesh** and independently normalized estimators; their colors must not be treated as equal physical units.
+The blue flat baseline is **not rendered**. Default shape comparison uses two different geometries. See [DIFFERENTIAL_GROWTH_EXPERIMENT.md](DIFFERENTIAL_GROWTH_EXPERIMENT.md) for the target metric, reduced candidate-surface search, stability-mode estimate, and equal-layer bilayer formula. The green surface minimizes a discrete metric mismatch **within a constrained shape family**; it does not solve general nonlinear sheet elasticity, anatomical tissue growth, force balance, or self-contact. In heatmap mode, orange and green use the **same procedural petal mesh** and independently normalized estimators; their colors are not equal physical units.
 
 ## Method
 For a triangle mesh, each triangle contributes cotangents of its interior angles to weights on opposite edges. For vertex `i`, the discrete Laplace-Beltrami estimate is
@@ -24,6 +24,8 @@ This is an in-project JavaScript implementation of the standard cotangent discre
 - Crane, K., Weischedel, C., & Wardetzky, M. (2013). Geodesics in Heat: A New Approach to Computing Distance Based on Heat Flow. *ACM Transactions on Graphics*, 32(5). (Background on discrete mesh operators; not a validation of the petal model.)
 - geometry-processing-js: https://github.com/GeometryCollective/geometry-processing-js
 - Three.js: https://threejs.org/docs/
+- Liang, H., & Mahadevan, L. (2009). The shape of a long leaf. *Proceedings of the National Academy of Sciences*, 106(52), 22049–22054. https://doi.org/10.1073/pnas.0911954106
+- Timoshenko, S. (1925). Analysis of bi-metal thermostats. *Journal of the Optical Society of America*, 11(3), 233–255. https://doi.org/10.1364/JOSA.11.000233 (Equal-layer bilayer analogy only.)
 - Liang, H., & Mahadevan, L. (2011). Growth, geometry, and mechanics of a blooming lily. *Proceedings of the National Academy of Sciences*, 108(14), 5516–5521. https://doi.org/10.1073/pnas.1007808108 (Biological-mechanics context; this lab does not implement their model.)
 
 ## Validation still required
@@ -32,4 +34,4 @@ This is an in-project JavaScript implementation of the standard cotangent discre
 3. Compare with measured petal scans and actual production meshes.
 4. Benchmark interactive rendering on mobile.
 
-The growth animation remains illustrative, and no physically based tissue-growth simulation or collision handling is claimed.
+The growth animation remains illustrative. Metric-fit RMS residuals and half-wave counts are model-internal values, not validation against experimental petals.
