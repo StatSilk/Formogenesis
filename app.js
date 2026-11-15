@@ -4,11 +4,11 @@ import {fitGrowthMetric,metricHeight,bilayerArc} from './growth-metric.js';
 import {generateInhibitedPrimordia} from './phyllotaxis.js';
 const TAU=Math.PI*2, clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),rad=d=>d*Math.PI/180;
 const golden=137.507764;
-const discModelDefaults={phylloModel:'inhibition',inhibitionRadius:.82};
+const discModelDefaults={phylloModel:'vogel',inhibitionRadius:.82};
 const presets={
  rose:{petals:6,layers:8,open:64,width:92,curl:22,ruffle:12,twist:7,thickness:18,stem:68,size:105,angle:golden,dome:45,ray:40,color:'#c92839',roseStyle:'natural',kind:'whorl',note:'Rose growth here is staged after a real bud-to-bloom sequence: green sepals enclose the early bud, then peel back as outer red petals open first and inner petals unfurl later. It remains an experimental approximation rather than a precise developmental model.'},
  tulip:{petals:6,layers:1,open:33,width:80,curl:14,ruffle:0,twist:3,thickness:20,stem:78,size:95,angle:120,dome:22,ray:40,color:'#eb4b67',kind:'whorl',note:'Tulips form a cup from six gently curved tepals in two offset whorls of three. The illustrative animation shows a green bud elongating, developing pigment, and opening at its tips.'},
- lily:{petals:6,layers:1,open:80,width:46,curl:55,ruffle:10,twist:18,thickness:15,stem:74,size:105,angle:120,dome:15,ray:55,color:'#fff3d1',kind:'whorl',note:'Lilies have 6 showy tepals arranged in two sets of three, often with recurved tips and prominent stamens.'},
+ frangipani:{petals:5,layers:1,open:92,width:93,curl:17,ruffle:0,twist:43,thickness:19,stem:76,size:105,angle:72,dome:12,ray:0,color:'#fff8e7',kind:'whorl',note:'Frangipani (Plumeria) has five fused corolla lobes emerging from a narrow tube. In the bud, adjacent lobes overlap consistently in a one-sided (sinistrorse) sequence; this simplified model shows their pinwheel-like unfurling. The geometry and timing are illustrative, not measured organ-growth mechanics.'},
  sunflower:{...discModelDefaults,petals:32,layers:1,open:88,width:55,curl:13,ruffle:8,twist:5,thickness:27,stem:79,size:110,angle:golden,dome:53,ray:30,color:'#f7bd38',kind:'disc',note:'Hundreds of small flowers (florets) form the sunflower head. Inhibition-based placement can generate Fibonacci-like and alternative spirals. The Vogel reference demonstrates fixed golden-angle packing.'},
  daisy:{...discModelDefaults,petals:26,layers:1,open:92,width:45,curl:17,ruffle:7,twist:3,thickness:23,stem:70,size:98,angle:golden,dome:33,ray:50,color:'#f4f0ed',kind:'disc',note:'A daisy head is a cluster of small flowers. Spiral phyllotaxis occurs in its central disc, while the outer rays create a different, more radial pattern.'},
  gerbera:{...discModelDefaults,petals:27,layers:2,open:90,width:75,curl:24,ruffle:8,twist:5,thickness:25,stem:74,size:110,angle:golden,dome:27,ray:45,color:'#f26539',kind:'disc',note:'Gerberas are composite flower heads, with a central disc and showy ray florets. This single-like form uses two overlapping tiers of broad rays with gentle variation in their downward bend. Semi-double and double cultivars can have additional inner rows. Phyllotaxis patterns occur among the packed disc florets, not in the ray count.'},
@@ -90,9 +90,9 @@ function stemAndLeaves(group,p,headY,type){
  const len=type==='tulip'?adultLength*(.48+.52*rise):adultLength;
  // A living stalk is an irregular, gradually tapering surface, not a PBR-plastic cylinder.
  const radii={sunflower:.058,gerbera:.052,echinacea:.053,rose:.043,tulip:.043,
-  lily:.044,daisy:.044,poppy:.038};
+  frangipani:.042,daisy:.044,poppy:.038};
  const baseRadius=radii[type]??.045;
- const phase={sunflower:1.8,rose:.4,tulip:2.7,lily:1.1,daisy:2.1,
+ const phase={sunflower:1.8,rose:.4,tulip:2.7,frangipani:1.1,daisy:2.1,
   gerbera:.8,echinacea:1.4,poppy:2.9}[type]??1;
  const stemHeight=len+.12;
  function centerAt(t){
@@ -261,6 +261,88 @@ function rose(group,p,headY){
   }
  }
 }
+
+// Plumeria: one five-lobed fused corolla with contorted aestivation.
+// The neighbouring lobes overlap in a consistent sequence; the idealized
+// unfurling does not solve cell expansion or tissue elasticity.
+function frangipani(group,p,headY){
+ const age=clamp(p.growth??1,0,1);
+ const smooth=x=>{x=clamp(x,0,1);return x*x*(3-2*x)};
+ const maturity=smooth((age-.12)/.58);
+ const opening=smooth((age-.28)/.67)*p.open/100;
+ const throatY=headY+.13;
+ const rimY=headY+.40;
+ const baseColor=new THREE.Color('#fff4d2');
+ const petalColor=new THREE.Color(p.color);
+ const green=new THREE.Color('#66995c');
+ // The corolla tube is shared by all five lobes, avoiding five disconnected
+ // petals at the centre. Plumeria's reproductive organs sit inside this tube.
+ const profile=[
+  new THREE.Vector2(.058,throatY),
+  new THREE.Vector2(.068,throatY+.065),
+  new THREE.Vector2(.080,throatY+.155),
+  new THREE.Vector2(.102,throatY+.217),
+  new THREE.Vector2(.142,rimY)
+ ];
+ const tube=new THREE.Mesh(new THREE.LatheGeometry(profile,48),
+  new THREE.MeshStandardMaterial({color:green.clone().lerp(baseColor,maturity*.95),
+   roughness:.92,metalness:0,side:THREE.DoubleSide}));
+ tube.castShadow=true;tube.receiveShadow=true;group.add(tube);
+ const count=5,segments=52,across=28;
+ // Sinistrorse visual convention: a consistently directed overlap.
+ // This is a geometric encoding of bud aestivation, not a measured growth law.
+ const winding=-1;
+ for(let j=0;j<count;j++){
+  const theta=TAU*j/count + .02;
+  const length=(.35+.68*smooth((age-.04)/.71))*(1+.018*Math.sin(2.4*j));
+  const breadth=.82*(p.width/93);
+  const curl=p.curl/100;
+  const twist=.28+.38*p.twist/100;
+  const fn=(t,u)=>{
+   // Rounded outer lobe; the broad region ends in a soft circular tip.
+   const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*t)),.43);
+   const edge=envelope*(.78+.22*t);
+   const halfArc=breadth*edge;
+   const shear=winding*twist*Math.pow(t,.82)*(.92-.62*opening);
+   const az=theta+u*halfArc+shear+
+    .022*Math.sin(j*2.7+t*5.0)*t*(1-Math.abs(u));
+   const rr=.14+length*t*(.065+.96*opening)+
+    .048*(1-u*u)*Math.sin(Math.PI*t)*opening;
+   const valley=.047*u*(.65+.35*t)*(1-opening);
+   let y=rimY+length*t*(.94-.86*opening)-
+    (.065+.15*curl)*Math.pow(t,2.2)*opening+valley;
+   // Shallow transverse cupping and a softly reflexed rim.
+   y+=.048*(1-u*u)*envelope*opening-
+    .065*Math.pow(Math.abs(u),2)*Math.pow(t,1.5)*opening;
+   return [rr*Math.cos(az),y,rr*Math.sin(az)];
+  };
+  const geometry=meshOfSurface(fn,segments,across,.012+p.thickness/100*.016);
+  const colors=[],paleYellow=new THREE.Color('#ffd468');
+  for(let side=0;side<2;side++)for(let i=0;i<=segments;i++)for(let q=0;q<=across;q++){
+   const t=i/segments,u=q/across*2-1;
+   const c=paleYellow.clone().lerp(petalColor,smooth((t-.09)/.76));
+   // Yellow is most intense in the tube; the outer rounded tips are lighter.
+   c.lerp(new THREE.Color('#fffef6'),.12*smooth((t-.56)/.43));
+   c.multiplyScalar(1-.042*Math.abs(u)*Math.sin(Math.PI*t)+.018*Math.sin(j*1.7+t*3.0));
+   c.copy(green).lerp(c,.20+.80*maturity);
+   colors.push(c.r,c.g,c.b);
+  }
+  geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+  const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({
+   vertexColors:true,side:THREE.DoubleSide,roughness:.96,metalness:0
+  }));
+  mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);
+ }
+ // A small five-part green calyx sits immediately below the corolla tube.
+ for(let j=0;j<5;j++){
+  const a=TAU*j/5;
+  const sepals=new THREE.Mesh(new THREE.ConeGeometry(.054,.20,10),
+   material('#568a4a'));
+  sepals.position.set(.056*Math.cos(a),throatY-.015,.056*Math.sin(a));
+  sepals.rotation.z=Math.PI-.16*Math.sin(a);sepals.rotation.x=.16*Math.cos(a);
+  sepals.castShadow=true;group.add(sepals);
+ }
+}
 function whorl(group,p,headY,type){
  const age=clamp(p.growth??1,0,1),smooth=x=>{x=clamp(x,0,1);return x*x*(3-2*x)};
  const count=Math.max(3,p.petals),rounds=type==='tulip'?2:p.layers;
@@ -304,11 +386,11 @@ function whorl(group,p,headY,type){
      };
      organicPetal(group,fn,pigment.getStyle(),k,j+11*k,.007+p.thickness/100*.010);
    }else{
-     const opening=type==='lily'?.48+op*.55:op;
+     const opening=op;
      const variance=1+.065*Math.sin(j*2.39+k*1.34);
      const length=(type==='poppy'?1.08:1.22)*(.62+.38*age)*variance;
      const w=(type==='poppy'?.66:.42)*(p.width/80)*Math.pow(6/per,.34)*(1+.05*Math.cos(j*1.83+k));
-     newPetal(group,{base:[0,headY,0],phi:theta+.032*Math.sin(j*2.13+k),length,width:w,opening:opening*(1+.045*Math.sin(j*1.93+k)),curl:p.curl/100*(type==='lily'?1.25:.7),ruffle:p.ruffle/100*.13,twist:p.twist/100*.22,tipRound:1,seed:j+7*k},p.color,.007+p.thickness/100*.052);
+     newPetal(group,{base:[0,headY,0],phi:theta+.032*Math.sin(j*2.13+k),length,width:w,opening:opening*(1+.045*Math.sin(j*1.93+k)),curl:p.curl/100*.7,ruffle:p.ruffle/100*.13,twist:p.twist/100*.22,tipRound:1,seed:j+7*k},p.color,.007+p.thickness/100*.052);
    }
  }
  // Stamens emerge from the same receptacle, below the tall tulip rim.
@@ -318,7 +400,7 @@ function whorl(group,p,headY,type){
   const a=j*TAU/(type==='poppy'?24:6);
   const fil=new THREE.Mesh(new THREE.CylinderGeometry(.009,.014,sty,6),material('#dfd19c'));
   fil.position.set(.10*Math.cos(a),headY+sty/2,.10*Math.sin(a));group.add(fil);
-  const an=new THREE.Mesh(new THREE.SphereGeometry(.035,8,7),material(type==='lily'?'#c56736':'#6c432e'));
+  const an=new THREE.Mesh(new THREE.SphereGeometry(.035,8,7),material('#6c432e'));
   an.position.set(.15*Math.cos(a),headY+sty,.15*Math.sin(a));group.add(an);
  }
 }
@@ -396,6 +478,7 @@ function makeFlower(type,settings){const p={...settings},group=new THREE.Group()
  const stemGroup=new THREE.Group(),bloomGroup=new THREE.Group();group.add(stemGroup,bloomGroup);
  stemAndLeaves(stemGroup,p,headY,type);
  if(type==='rose')rose(bloomGroup,p,headY);
+ else if(type==='frangipani')frangipani(bloomGroup,p,headY);
  else if(['sunflower','daisy','gerbera','echinacea'].includes(type))discFlower(bloomGroup,p,headY,type);
  else whorl(bloomGroup,p,headY,type);
  const development=clamp(p.growth??1,0,1);
@@ -414,7 +497,7 @@ function makeFlower(type,settings){const p={...settings},group=new THREE.Group()
 import * as THREE from 'three';
 
 
-const names={sunflower:'Sunflower',rose:'Rose',tulip:'Tulip',lily:'Lily',daisy:'Daisy',gerbera:'Gerbera',echinacea:'Coneflower',poppy:'Poppy'};
+const names={sunflower:'Sunflower',rose:'Rose',tulip:'Tulip',frangipani:'Frangipani',daisy:'Daisy',gerbera:'Gerbera',echinacea:'Coneflower',poppy:'Poppy'};
 const defs=[
  ['petals','Petals / rays',3,64,1,'Outer petal or ray count'],['layers','Petal layers',1,9,1,'Number of overlapping whorls'],
  ['open','Bloom openness',0,100,1,'How much the petals spread'],['width','Petal width',20,130,1,'Wider petals create fuller blooms'],
@@ -518,7 +601,7 @@ const groupings=[['Shape','petals','layers','open','width','curl','thickness','r
 const visibleByFamily={
  rose:['petals','layers','open','width','curl','thickness','ruffle','twist','stem'],
  tulip:['petals','open','width','curl','thickness','ruffle','twist','stem'],
- lily:['petals','layers','open','width','curl','thickness','ruffle','twist','stem'],
+ frangipani:['open','width','curl','thickness','twist','stem'],
  poppy:['petals','layers','open','width','curl','thickness','ruffle','twist','stem'],
  sunflower:['petals','layers','open','width','curl','thickness','ruffle','twist','stem','dome','ray','angle'],
  daisy:['petals','layers','open','width','curl','thickness','ruffle','twist','stem','dome','ray','angle'],

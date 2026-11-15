@@ -2,6 +2,14 @@
 
 Notable changes to Formogenesis: Flowers are documented here. Versions describe development milestones, not scientific validation.
 
+## [0.3.2] - 2026-11-15
+
+### Vogel first, and frangipani
+- Made the fixed-angle Vogel construction the default model for all composite flower heads and put its control first.
+- Replaced Lily with Frangipani (Plumeria): fivefold corolla symmetry, a common funnel-like corolla tube, consistently directed lobe overlap and unfolding motion.
+- Added a yellow-centred-to-cream petal pigment gradient, green early bud and smooth rounded lobes; retained editable dimensions and stages.
+- Frangipani overlap and opening are phenomenological visualizations, not a validated tissue-growth simulation.
+
 ## [0.3.1] - 2026-11-15
 
 ### More natural flower stems
