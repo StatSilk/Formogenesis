@@ -2,9 +2,26 @@
 
 Notable changes to StatFlowers are documented here. This project is experimental; versions describe development milestones rather than scientific validation.
 
-## [Unreleased] - 2026-11-14
+## [Unreleased] - 2026-11-15
 
-### Next patch (after v0.1.0)
+### Documentation and usability
+- Reconciled petal lab terminology and its single v0.2.6 version label with the growth-stretch and curvature experiments.
+- Added verified foundational phyllotaxis and lily growth/mechanics references, and clarified the mathematical limitations.
+- Updated README with card and experiment links, a procedural visual preview, source layout, and Three.js attribution.
+- Added Open Graph images for the studio and public greeting cards.
+- Added an explicit card-embed mode to hide mobile toolbars without dependence on parent-page CSS injection.
+- Clarified rose symmetry as layered staggered whorls; removed unused petal lab branches and skipped unnecessary curvature work outside heatmap mode.
+- Throttled repeated growth-geometry rebuilds on touch devices; full mobile performance benchmarks remain outstanding.
+
+## [0.2.6] - 2026-11-14
+
+### Petal geometry laboratory
+- Compared the original orange procedural petal with a green kinematic growth-stretch model, using a spatially varying stretch field.
+- Added curvature heatmap comparison: orange directional tangent-change proxy versus green cotangent-weighted discrete mean-curvature magnitude on identical geometry.
+- Added deterministic low-frequency variation, flower-whorl comparison, direct curvature and mesh-resolution controls, and mobile touch rotation/zoom.
+- Documented that the geometry is illustrative and neither a validated differential-growth nor elastic-sheet solver; the blue baseline is no longer rendered.
+
+### Earlier v0.2.x geometry refinements
 - Replaced the rose's intersecting tangent-plane petal geometry with nested curved radial sectors and constrained inward rim folds.
 - Loosened the mature tulip's upper tepals, increasing individual height, lean, bend and rim variation while keeping a closed juvenile bud.
 - Tulip now begins as a tightly gathered green bud; the tepals elongate, develop pigment, and slowly open into a bulbous six-part cup with no detached green sphere.
@@ -42,4 +59,5 @@ Notable changes to StatFlowers are documented here. This project is experimental
 - MIT license and scientific-accuracy notice.
 
 [Unreleased]: https://github.com/StatSilk/StatFlowers/commits/main/
+[0.2.6]: https://github.com/StatSilk/StatFlowers/commits/main/
 [0.1.0]: https://github.com/StatSilk/StatFlowers/commits/main/

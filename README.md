@@ -2,9 +2,13 @@
 
 StatFlowers is an experimental 3D botanical studio for exploring flower shapes, growth animations and the mathematics of nature, from floral symmetry to Fibonacci spirals.
 
+![Procedural sunflower and golden-angle floret visualization](assets/social-preview.png)
+
+*Illustrative procedural preview of sunflower phyllotaxis; the [live studio](https://statsilk.github.io/StatFlowers/) contains the interactive 3D models.*
+
 ## Run the app
 
-[**Explore StatFlowers live**](https://statsilk.github.io/StatFlowers/) (GitHub Pages). The app uses a Three.js CDN and needs internet access.
+[**Explore StatFlowers live**](https://statsilk.github.io/StatFlowers/) · [**Make a 3D greeting card**](https://statsilk.github.io/StatFlowers/cards.html) · [**Compare petal methods**](https://statsilk.github.io/StatFlowers/petal-lab.html).
 
 The site runs directly in your browser. `index.html` is the interface, `app.js` contains the flower geometry and controls, and Three.js is loaded from a CDN. An internet connection is required.
 
@@ -14,8 +18,13 @@ See the [v0.1.0 release notes](RELEASE_NOTES_v0.1.0.md). This is an experimental
 
 ## Source layout
 
-- `index.html`: interface and styling
+- `index.html`: interactive 3D studio interface and responsive layout
 - `app.js`: procedural flower meshes, growth stages, 3D renderer and interactions
+- `cards.html`: customizable interactive 3D greeting cards with shareable URL settings
+- `petal-lab.html`: orange procedural / green growth-stretch petal comparison and curvature heatmaps
+- `PETAL_CURVATURE_METHODS.md`: discrete curvature mathematics and scientific limitations
+- `DIFFERENTIAL_GROWTH_EXPERIMENT.md`: kinematic growth-stretch parameterization and references
+- `assets/social-preview.png`: reproducible procedural preview; source in `scripts/generate-social-preview.mjs`
 - `CHANGELOG.md`: development history and model limitations
 
 ## Features
@@ -25,10 +34,18 @@ See the [v0.1.0 release notes](RELEASE_NOTES_v0.1.0.md). This is an experimental
 - 3D and top-down views, soft shadows, petal controls and colors
 - Bud-to-bloom timeline and growth animation
 - Golden-angle/Fibonacci phyllotaxis experiments for composite flower heads
+- Customizable 3D flower greeting cards with occasion, colors, bloom openness, and personalized messages
+- Side-by-side petal geometry laboratory comparing procedural surfaces, kinematic growth-stretch deformation, and curvature estimators
 
 ## Scientific accuracy
 
 **Experimental model:** Flower forms and bloom animations are illustrative approximations, not mathematically exact reconstructions or predictive plant biology. The golden-angle model represents idealized phyllotaxis; real flowers differ substantially in development.
+
+For composite heads, the floret arrangement follows an idealized Vogel-type radial construction, based on the golden angle. This geometric model is distinct from a developmental or mechanical simulation. See:
+
+- Vogel, H. (1979). A better way to construct the sunflower head. *Mathematical Biosciences*, 44(3–4), 179–189. https://doi.org/10.1016/0025-5564(79)90080-4
+- Douady, S., & Couder, Y. (1992). Phyllotaxis as a physical self-organized growth process. *Physical Review Letters*, 68(13), 2098–2101. https://doi.org/10.1103/PhysRevLett.68.2098
+- Liang, H., & Mahadevan, L. (2011). Growth, geometry, and mechanics of a blooming lily. *PNAS*, 108(14), 5516–5521. https://doi.org/10.1073/pnas.1007808108 (Background for growth mechanics, not implemented here.)
 
 ## Origins
 
@@ -41,3 +58,7 @@ See [CHANGELOG.md](CHANGELOG.md) for updates, experimental limitations and relea
 ## License
 
 Released under the permissive [MIT License](LICENSE). You may use, modify and redistribute the code, including commercially, provided the copyright and license notices are retained.
+
+### Third-party software
+
+[Three.js](https://threejs.org/) is loaded from a CDN for 3D rendering and is distributed under the [MIT License](https://github.com/mrdoob/three.js/blob/master/LICENSE). The project's custom flower and petal geometry code is implemented separately.

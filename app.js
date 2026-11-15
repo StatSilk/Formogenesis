@@ -12,7 +12,6 @@ const presets={
  echinacea:{petals:18,layers:1,open:85,width:57,curl:22,ruffle:4,twist:6,thickness:20,stem:83,size:102,angle:golden,dome:92,ray:85,color:'#db83ab',kind:'disc',note:'Coneflowers have a noticeably domed central disc, making the 3D arrangement of florets especially visible from the side and top.'},
  poppy:{petals:4,layers:1,open:89,width:100,curl:33,ruffle:25,twist:13,thickness:15,stem:71,size:102,angle:90,dome:12,ray:22,color:'#e95742',kind:'whorl',note:'Many poppies show four broad petals in two overlapping pairs: fourfold symmetry, rather than the sunflower\'s dense seed spiral.'}
 };
-function hexToRGB(hex){const c=new THREE.Color(hex);return c;}
 function material(c,side=THREE.DoubleSide){return new THREE.MeshStandardMaterial({color:c,side,roughness:1,metalness:0,flatShading:false});}
 function meshOfSurface(fn,segT=18,segU=12,thickness=0.005){
  const pts=[],inds=[],stride=segU+1;
@@ -348,12 +347,14 @@ function renderFlower(stage=1){disposeFlower();flower=makeFlower(family,{...p,gr
  $('flowerLabel').textContent=names[family];$('science').textContent=p.note;
  $('angleTitle').textContent='Floret spiral / phyllotaxis';
  $('angleHelp').textContent='The angle changes the arrangement of small florets in the flower head. 137.508° is the golden angle. Flowers with just a few petals use whorl symmetry instead.';
- $('symmetry').textContent=p.kind==='disc'?'Vogel spiral, many florets':`${p.petals}-part outer symmetry`;
+ $('symmetry').textContent=p.kind==='disc'?'Vogel spiral, many florets':family==='rose'?'Layered, staggered petal whorls':`${p.petals}-part outer symmetry`;
  if($('growthStage')){$('growthStage').value=Math.round(stage*100);$('growthValue').textContent=Math.round(stage*100)+'%';}
  const roseStage=$('roseStageLabel');if(roseStage){roseStage.hidden=!['rose','tulip'].includes(family);if(family==='rose')roseStage.textContent=stage<.12?'1 · Closed green bud':stage<.30?'2 · Green sepals peel back':stage<.48?'3 · Red bud emerges':stage<.70?'4 · Outer petals unfurl':stage<.90?'5 · Inner layers revealed':'6 · Layered open rose';else if(family==='tulip')roseStage.textContent=stage<.24?'1 · Green bud growing':stage<.49?'2 · Petal colour emerging':stage<.76?'3 · Tulip tepals opening':'4 · Open tulip cup';}
  refreshOverview();render();}
 function replayGrowth(){cancelAnimationFrame(animationId);const token=++animationToken;const start=performance.now(),duration=3000;let last=-1000;
- function frame(now){if(token!==animationToken)return;const stage=Math.min(1,(now-start)/duration);if(now-last>65||stage===1){renderFlower(stage);last=now;}if(stage<1)animationId=requestAnimationFrame(frame)}animationId=requestAnimationFrame(frame)}
+ // Meshes are rebuilt per growth step; cap that cost on touch devices until geometry can be interpolated.
+ const minFrameMs=window.matchMedia('(pointer:coarse)').matches?115:65;
+ function frame(now){if(token!==animationToken)return;const stage=Math.min(1,(now-start)/duration);if(now-last>minFrameMs||stage===1){renderFlower(stage);last=now;}if(stage<1)animationId=requestAnimationFrame(frame)}animationId=requestAnimationFrame(frame)}
 function stopGrowth(){animationToken++;cancelAnimationFrame(animationId)}
 function setMode(v){mode=v;$('topBtn').classList.toggle('selected',v==='top');$('sideBtn').classList.toggle('selected',v==='perspective');render();}
 function adjustCamera(){const target=new THREE.Vector3(0,.12,0);if(mode==='top'){camera.position.set(.001,zoom,0.001);camera.up.set(0,0,-1)}else{camera.up.set(0,1,0);camera.position.set(Math.sin(angleY)*Math.cos(angleX)*zoom,Math.sin(angleX)*zoom,Math.cos(angleY)*Math.cos(angleX)*zoom)}camera.lookAt(target);camera.updateProjectionMatrix()}

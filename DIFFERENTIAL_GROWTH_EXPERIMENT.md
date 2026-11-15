@@ -28,6 +28,7 @@ These formulas are **our experimental parameterization**, not equations copied f
 - Dervaux, J., & Ben Amar, M. (2008). Morphogenesis of growing soft tissues. *Physical Review Letters*, 101, 068101. https://doi.org/10.1103/PhysRevLett.101.068101
 - Prusinkiewicz, P., & Lindenmayer, A. (1990). *The Algorithmic Beauty of Plants*. https://algorithmicbotany.org/papers/abop/abop.pdf
 - Meyer, M., Desbrun, M., Schröder, P., & Barr, A. H. (2003). Discrete differential-geometry operators for triangulated 2-manifolds. https://doi.org/10.1007/978-3-662-05105-4_2
+- Liang, H., & Mahadevan, L. (2011). Growth, geometry, and mechanics of a blooming lily. *Proceedings of the National Academy of Sciences*, 108(14), 5516–5521. https://doi.org/10.1073/pnas.1007808108 (Directly relevant experimental and mechanical research; our model is not an implementation.)
 
 ## Open source status
 
