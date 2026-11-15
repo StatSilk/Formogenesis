@@ -2,6 +2,15 @@
 
 Notable changes to Formogenesis: Flowers are documented here. Versions describe development milestones, not scientific validation.
 
+## [0.3.0] - 2026-11-15
+
+### Self-organizing phyllotaxis
+- Added local inhibition-driven primordium placement to composite flower heads: a new site minimizes the summed distance-decay field left by prior primordia, which drift radially as the meristem grows.
+- Added a single inhibition-radius slider, branching into representative Fibonacci-like and Lucas-like spirals and near-synchronous paired / threefold regimes, plus a fixed-angle Vogel reference toggle.
+- Added a ten-second, top-view seed-assembly animation that updates instanced florets and the 2D pattern inset without rebuilding the whole flower at each animation frame.
+- Added a separate documented mathematical module and deterministic regression tests.
+- Disclosed that early-growth history is coupled to the radius control and paired/threefold cohorts use a constrained symmetric ansatz; no biological auxin transport or predictive transition thresholds are claimed.
+
 ## [0.2.9] - 2026-11-15
 
 ### Growth-metric and bilayer experiment

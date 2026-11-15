@@ -1,16 +1,18 @@
 
 
 import {fitGrowthMetric,metricHeight,bilayerArc} from './growth-metric.js';
+import {generateInhibitedPrimordia} from './phyllotaxis.js';
 const TAU=Math.PI*2, clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),rad=d=>d*Math.PI/180;
 const golden=137.507764;
+const discModelDefaults={phylloModel:'inhibition',inhibitionRadius:.82};
 const presets={
  rose:{petals:6,layers:8,open:64,width:92,curl:22,ruffle:12,twist:7,thickness:18,stem:68,size:105,angle:golden,dome:45,ray:40,color:'#c92839',roseStyle:'natural',kind:'whorl',note:'Rose growth here is staged after a real bud-to-bloom sequence: green sepals enclose the early bud, then peel back as outer red petals open first and inner petals unfurl later. It remains an experimental approximation rather than a precise developmental model.'},
  tulip:{petals:6,layers:1,open:33,width:80,curl:14,ruffle:0,twist:3,thickness:20,stem:78,size:95,angle:120,dome:22,ray:40,color:'#eb4b67',kind:'whorl',note:'Tulips form a cup from six gently curved tepals in two offset whorls of three. The illustrative animation shows a green bud elongating, developing pigment, and opening at its tips.'},
  lily:{petals:6,layers:1,open:80,width:46,curl:55,ruffle:10,twist:18,thickness:15,stem:74,size:105,angle:120,dome:15,ray:55,color:'#fff3d1',kind:'whorl',note:'Lilies have 6 showy tepals arranged in two sets of three, often with recurved tips and prominent stamens.'},
- sunflower:{petals:32,layers:1,open:88,width:55,curl:13,ruffle:8,twist:5,thickness:27,stem:79,size:110,angle:golden,dome:53,ray:30,color:'#f7bd38',kind:'disc',note:'Hundreds of small flowers (florets) form the sunflower head. The golden divergence angle packs florets into opposing Fibonacci spiral families.'},
- daisy:{petals:26,layers:1,open:92,width:45,curl:17,ruffle:7,twist:3,thickness:23,stem:70,size:98,angle:golden,dome:33,ray:50,color:'#f4f0ed',kind:'disc',note:'A daisy head is a cluster of small flowers. Spiral phyllotaxis occurs in its central disc, while the outer rays create a different, more radial pattern.'},
- gerbera:{petals:27,layers:2,open:90,width:75,curl:24,ruffle:8,twist:5,thickness:25,stem:74,size:110,angle:golden,dome:27,ray:45,color:'#f26539',kind:'disc',note:'Gerberas are composite flower heads, with a central disc and showy ray florets. This single-like form uses two overlapping tiers of broad rays with gentle variation in their downward bend. Semi-double and double cultivars can have additional inner rows. Golden-angle spirals apply to the packed disc florets, not the ray count.'},
- echinacea:{petals:18,layers:1,open:85,width:57,curl:22,ruffle:4,twist:6,thickness:20,stem:83,size:102,angle:golden,dome:92,ray:85,color:'#db83ab',kind:'disc',note:'Coneflowers have a noticeably domed central disc, making the 3D arrangement of florets especially visible from the side and top.'},
+ sunflower:{...discModelDefaults,petals:32,layers:1,open:88,width:55,curl:13,ruffle:8,twist:5,thickness:27,stem:79,size:110,angle:golden,dome:53,ray:30,color:'#f7bd38',kind:'disc',note:'Hundreds of small flowers (florets) form the sunflower head. Inhibition-based placement can generate Fibonacci-like and alternative spirals. The Vogel reference demonstrates fixed golden-angle packing.'},
+ daisy:{...discModelDefaults,petals:26,layers:1,open:92,width:45,curl:17,ruffle:7,twist:3,thickness:23,stem:70,size:98,angle:golden,dome:33,ray:50,color:'#f4f0ed',kind:'disc',note:'A daisy head is a cluster of small flowers. Spiral phyllotaxis occurs in its central disc, while the outer rays create a different, more radial pattern.'},
+ gerbera:{...discModelDefaults,petals:27,layers:2,open:90,width:75,curl:24,ruffle:8,twist:5,thickness:25,stem:74,size:110,angle:golden,dome:27,ray:45,color:'#f26539',kind:'disc',note:'Gerberas are composite flower heads, with a central disc and showy ray florets. This single-like form uses two overlapping tiers of broad rays with gentle variation in their downward bend. Semi-double and double cultivars can have additional inner rows. Phyllotaxis patterns occur among the packed disc florets, not in the ray count.'},
+ echinacea:{...discModelDefaults,petals:18,layers:1,open:85,width:57,curl:22,ruffle:4,twist:6,thickness:20,stem:83,size:102,angle:golden,dome:92,ray:85,color:'#db83ab',kind:'disc',note:'Coneflowers have a noticeably domed central disc, making the 3D arrangement of florets especially visible from the side and top.'},
  poppy:{petals:4,layers:1,open:89,width:100,curl:33,ruffle:25,twist:13,thickness:15,stem:71,size:102,angle:90,dome:12,ray:22,color:'#e95742',kind:'whorl',note:'Many poppies show four broad petals in two overlapping pairs: fourfold symmetry, rather than the sunflower\'s dense seed spiral.'}
 };
 function material(c,side=THREE.DoubleSide){return new THREE.MeshStandardMaterial({color:c,side,roughness:1,metalness:0,flatShading:false});}
@@ -275,20 +277,33 @@ function discFlower(group,p,headY,type){
  const base=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius*.87,.16,80),material(type==='sunflower'?'#544024':'#647635'));base.position.y=headY+.015;base.castShadow=true;group.add(base);
  const domeMesh=new THREE.Mesh(new THREE.SphereGeometry(1,64,36,0,TAU,0,Math.PI/2),material(type==='daisy'?'#d9ab27':type==='gerbera'?'#a87727':'#594022'));
  domeMesh.scale.set(radius,dome,radius);domeMesh.position.y=headY+.075;domeMesh.castShadow=true;group.add(domeMesh);
- // Vogel spiral placement of small florets on the 3D domed head.
- const total=type==='sunflower'?950:type==='gerbera'?680:type==='echinacea'?610:460;
- const sphere=new THREE.SphereGeometry(.015,6,5),mat=new THREE.MeshStandardMaterial({roughness:1,vertexColors:false,color:'#f4ba57'});
- const inst=new THREE.InstancedMesh(sphere,mat,total),dummy=new THREE.Object3D();const cl=new THREE.Color();
- for(let i=0;i<total;i++){
-  const radiusN=Math.sqrt((i+.5)/total),a=rad(p.angle)*i,R=radius*radiusN;
-  const domeY=dome*Math.sqrt(Math.max(0,1-radiusN*radiusN));
-  dummy.position.set(R*Math.cos(a),headY+.075+domeY+.010,R*Math.sin(a));
-  const sc=.65+1.2*radiusN;
-  dummy.scale.setScalar(sc);dummy.updateMatrix();inst.setMatrixAt(i,dummy.matrix);
-  cl.setHSL(type==='daisy'?.12:type==='gerbera'?.085:type==='echinacea'?.10:.105,.65,.28+.39*radiusN);
-  inst.setColorAt(i,cl);
+ // Contrast a prescribed Vogel angle with an emergent inhibition field.
+ const total=type==='sunflower'?444:type==='gerbera'?390:type==='echinacea'?360:324;
+ const inhibited=p.phylloModel!=='vogel';
+ const result=inhibited?generateInhibitedPrimordia({count:total,inhibitionRadius:p.inhibitionRadius??.82}):null;
+ const angles=result?result.primordia.map(item=>item.angle):Array.from({length:total},(_,i)=>rad(p.angle)*i);
+ const sphere=new THREE.SphereGeometry(.018,7,6),
+  mat=new THREE.MeshStandardMaterial({roughness:1,vertexColors:false,color:'#f4ba57'});
+ const inst=new THREE.InstancedMesh(sphere,mat,total),dummy=new THREE.Object3D(),cl=new THREE.Color();
+ function setVisibleFlorets(count){
+  const visible=Math.min(total,Math.max(0,Math.round(count)));
+  inst.count=visible;
+  for(let i=0;i<visible;i++){
+   // Each new primordium appears centrally, while existing ones drift outward.
+   // The sqrt age-to-radius mapping is a display transform, not the solver's exponential radial drift.
+   const rn=inhibited?Math.sqrt(Math.max(.5,visible-i-.5)/total):Math.sqrt((i+.5)/total);
+   const R=radius*rn,a=angles[i],domeY=dome*Math.sqrt(Math.max(0,1-rn*rn));
+   dummy.position.set(R*Math.cos(a),headY+.075+domeY+.010,R*Math.sin(a));
+   dummy.scale.setScalar(.8+1.15*rn);dummy.updateMatrix();inst.setMatrixAt(i,dummy.matrix);
+   cl.setHSL(type==='daisy'?.12:type==='gerbera'?.085:type==='echinacea'?.10:.105,.65,.28+.39*rn);
+   inst.setColorAt(i,cl);
+  }
+  inst.instanceMatrix.needsUpdate=true;
+  if(inst.instanceColor)inst.instanceColor.needsUpdate=true;
  }
- inst.instanceMatrix.needsUpdate=true;inst.instanceColor.needsUpdate=true;group.add(inst);
+ setVisibleFlorets(total);
+ group.add(inst);
+ group.userData.floretAssembly={total,angles,result,inhibited,setVisible:setVisibleFlorets};
  for(let k=0;k<p.layers;k++)for(let i=0;i<n;i++){
   const phi=TAU*i/n + k*Math.PI/n;
   const cone=type==='echinacea',gerbera=type==='gerbera';
@@ -366,20 +381,45 @@ key.shadow.radius=3.5;key.shadow.blurSamples=12;
 key.target.position.set(0,0,0);scene.add(key.target);scene.add(key);
 const fill=new THREE.DirectionalLight('#bcd6e0',.30);fill.position.set(4,2,-4);scene.add(fill);
 let flower;let animationId=0;let animationToken=0;
+let assembling=false,assemblyProgress=1,assemblyRaf=0,assemblyToken=0;
 function disposeFlower(){if(!flower)return;scene.remove(flower);flower.traverse(x=>{if(x.geometry)x.geometry.dispose();if(x.material){if(Array.isArray(x.material))x.material.forEach(m=>m.dispose());else x.material.dispose();}})}
-function renderFlower(stage=1){disposeFlower();flower=makeFlower(family,{...p,growth:stage});scene.add(flower);
+function renderFlower(stage=1){if(assembling)stopFormation(false);disposeFlower();flower=makeFlower(family,{...p,growth:stage});scene.add(flower);
  $('flowerLabel').textContent=names[family];$('science').textContent=p.note;
+ $('assemblePrimordia').hidden=p.kind!=='disc';
+ $('modelNote').hidden=p.kind!=='disc';
+ if(p.kind==='disc')$('modelNote').textContent=p.phylloModel==='vogel'?'Vogel baseline: a prescribed divergence angle. Switch to inhibition to see the angle emerge from local placement.':'Local inhibition: a primordium forms where the summed field is lowest, older organs drift radially, and narrow inhibition permits near-simultaneous cohorts. Range and developmental timing are coupled illustratively; these are not calibrated botanical transition thresholds.';
  $('angleTitle').textContent='Floret spiral / phyllotaxis';
- $('angleHelp').textContent='The angle changes the arrangement of small florets in the flower head. 137.508° is the golden angle. Flowers with just a few petals use whorl symmetry instead.';
- $('symmetry').textContent=p.kind==='disc'?'Vogel spiral, many florets':family==='rose'?'Layered, staggered petal whorls':`${p.petals}-part outer symmetry`;
+ $('angleHelp').textContent='Vogel baseline only: a prescribed angle places florets; 137.508° is the golden angle. Inhibition mode calculates placement instead.';
+ $('symmetry').textContent=p.kind==='disc'?(p.phylloModel==='vogel'?'Vogel spiral · prescribed angle':(flower.userData.bloom.userData.floretAssembly?.result?.label||'Local inhibition')):family==='rose'?'Layered, staggered petal whorls':`${p.petals}-part outer symmetry`;
  if($('growthStage')){$('growthStage').value=Math.round(stage*100);$('growthValue').textContent=Math.round(stage*100)+'%';}
  const roseStage=$('roseStageLabel');if(roseStage){roseStage.hidden=!['rose','tulip'].includes(family);if(family==='rose')roseStage.textContent=stage<.12?'1 · Closed green bud':stage<.30?'2 · Green sepals peel back':stage<.48?'3 · Red bud emerges':stage<.70?'4 · Outer petals unfurl':stage<.90?'5 · Inner layers revealed':'6 · Layered open rose';else if(family==='tulip')roseStage.textContent=stage<.24?'1 · Green bud growing':stage<.49?'2 · Petal colour emerging':stage<.76?'3 · Tulip tepals opening':'4 · Open tulip cup';}
  refreshOverview();render();}
-function replayGrowth(){cancelAnimationFrame(animationId);const token=++animationToken;const start=performance.now(),duration=3000;let last=-1000;
+function replayGrowth(){stopFormation(false);cancelAnimationFrame(animationId);const token=++animationToken;const start=performance.now(),duration=3000;let last=-1000;
  // Meshes are rebuilt per growth step; cap that cost on touch devices until geometry can be interpolated.
  const minFrameMs=window.matchMedia('(pointer:coarse)').matches?115:65;
  function frame(now){if(token!==animationToken)return;const stage=Math.min(1,(now-start)/duration);if(now-last>minFrameMs||stage===1){renderFlower(stage);last=now;}if(stage<1)animationId=requestAnimationFrame(frame)}animationId=requestAnimationFrame(frame)}
 function stopGrowth(){animationToken++;cancelAnimationFrame(animationId)}
+function stopFormation(restore=true){assemblyToken++;cancelAnimationFrame(assemblyRaf);assembling=false;assemblyProgress=1;
+ const group=flower?.userData?.bloom?.userData?.floretAssembly;
+ if(restore&&group){group.setVisible(group.total);refreshOverview();render();}}
+function replayFormation(){
+ if(p.kind!=='disc')return;
+ stopGrowth();stopFormation(false);
+ if(p.phylloModel!=='inhibition'){p.phylloModel='inhibition';buildControls();renderFlower();}
+ const group=flower?.userData?.bloom?.userData?.floretAssembly;
+ if(!group?.inhibited)return;
+ const token=++assemblyToken,start=performance.now();
+ const duration=window.matchMedia('(prefers-reduced-motion:reduce)').matches?1200:10000;
+ assembling=true;assemblyProgress=0;zoom=3.25;setMode('top');
+ function frame(now){if(token!==assemblyToken)return;
+  assemblyProgress=clamp((now-start)/duration,0,1);
+  const visible=Math.max(1,Math.ceil(assemblyProgress*group.total));
+  group.setVisible(visible);refreshOverview();render();
+  if(assemblyProgress<1)assemblyRaf=requestAnimationFrame(frame);else{assembling=false;assemblyProgress=1;}
+ }
+ assemblyRaf=requestAnimationFrame(frame);
+}
+$('assemblePrimordia').onclick=replayFormation;
 function setMode(v){mode=v;$('topBtn').classList.toggle('selected',v==='top');$('sideBtn').classList.toggle('selected',v==='perspective');render();}
 function adjustCamera(){const target=new THREE.Vector3(0,.12,0);if(mode==='top'){camera.position.set(.001,zoom,0.001);camera.up.set(0,0,-1)}else{camera.up.set(0,1,0);camera.position.set(Math.sin(angleY)*Math.cos(angleX)*zoom,Math.sin(angleX)*zoom,Math.cos(angleY)*Math.cos(angleX)*zoom)}camera.lookAt(target);camera.updateProjectionMatrix()}
 function render(){adjustCamera();renderer.render(scene,camera);const zv=document.getElementById('zoomValue');if(zv)zv.textContent=Math.round(500/zoom)+'%'}
@@ -414,7 +454,7 @@ canvas.addEventListener('pointercancel',endPointer);
 canvas.addEventListener('lostpointercapture',endPointer);canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(3.2,Math.min(8.5,zoom+e.deltaY*.003));render()},{passive:false});
 $('zoomOut').onclick=()=>{zoom=Math.min(8.5,zoom*.90**-1);render()};$('zoomIn').onclick=()=>{zoom=Math.max(3.2,zoom*.90);render()};
 $('topBtn').onclick=()=>setMode('top');$('sideBtn').onclick=()=>setMode('perspective');$('resetView').onclick=()=>{zoom=5.0;angleX=.47;angleY=.27;setMode('perspective');render()};
-function setFlower(type){stopGrowth();family=type;p={...presets[family]};zoom=type==='gerbera'?5.65:5.0;[...$('families').children].forEach(b=>b.classList.toggle('selected',b.dataset.id===type));buildControls();renderFlower()}
+function setFlower(type){stopGrowth();stopFormation(false);family=type;p={...presets[family]};zoom=type==='gerbera'?5.65:5.0;[...$('families').children].forEach(b=>b.classList.toggle('selected',b.dataset.id===type));buildControls();renderFlower()}
 for(const [id,label] of Object.entries(names)){const b=document.createElement('button');b.dataset.id=id;b.textContent=label;b.className='family';b.onclick=()=>setFlower(id);$('families').append(b)}
 // Only expose controls that actually change the selected flower's geometry.
 const groupings=[['Shape','petals','layers','open','width','curl','thickness','ruffle','twist'],['Growth','stem','dome','ray']];
@@ -447,7 +487,20 @@ function updateRoseStyleButtons(){
 function buildControls(){
  controls.replaceChildren();updateRoseStyleButtons();
  const visible=new Set(visibleByFamily[family]);
- const angleVisible=visible.has('angle');
+ const angleVisible=visible.has('angle')&&p.phylloModel==='vogel';
+ const modelActive=p.kind==='disc';
+ $('phylloControls').hidden=!modelActive;
+ if(modelActive){
+  $('inhibitModel').classList.toggle('selected',p.phylloModel!=='vogel');
+  $('vogelModel').classList.toggle('selected',p.phylloModel==='vogel');
+  $('inhibitionControl').hidden=p.phylloModel==='vogel';
+  const radius=$('inhibitionRadius');radius.value=p.inhibitionRadius??.82;
+  $('inhibitionValue').textContent=Number(radius.value).toFixed(2);
+  radius.oninput=()=>{$('inhibitionValue').textContent=Number(radius.value).toFixed(2)};
+  radius.onchange=()=>{p.inhibitionRadius=Number(radius.value);stopGrowth();stopFormation(false);renderFlower()};
+  $('inhibitModel').onclick=()=>{if(p.phylloModel==='inhibition')return;p.phylloModel='inhibition';stopGrowth();stopFormation(false);buildControls();renderFlower()};
+  $('vogelModel').onclick=()=>{if(p.phylloModel==='vogel')return;p.phylloModel='vogel';stopGrowth();stopFormation(false);buildControls();renderFlower()};
+ }
  for(const id of ['angleTitle','angles','angleDirect','angleHelp'])$(id).hidden=!angleVisible;
  if(angleVisible){const angleRoot=$('angleDirect');angleRoot.replaceChildren();const row=document.createElement('div');row.className='control';const h=document.createElement('div');h.className='controlHead';const lab=document.createElement('label');lab.textContent='Divergence angle';lab.htmlFor='angleSlider';const out=document.createElement('output');out.textContent=Number(p.angle).toFixed(1)+'°';out.id='angleSliderValue';h.append(lab,out);const slider=document.createElement('input');slider.id='angleSlider';slider.type='range';slider.min='90';slider.max='160';slider.step='.1';slider.value=p.angle;slider.oninput=()=>{p.angle=Number(slider.value);out.textContent=p.angle.toFixed(1)+'°';stopGrowth();renderFlower()};row.append(h,slider);angleRoot.append(row)}
  for(const [group,...allKeys] of groupings){
@@ -456,15 +509,48 @@ const section=document.createElement('section');section.className='controlGroup'
  // Roses use a limited, functional petal-count range instead of a 64-petal no-op plateau.
  const realMax=key==='petals'&&family==='rose'?11:max;
 const h=document.createElement('div');h.className='controlHead';const title=document.createElement('label');title.textContent=label;const val=document.createElement('output');val.textContent=key==='angle'?Number(p[key]).toFixed(1)+'°':p[key];h.append(title,val);const slider=document.createElement('input');slider.type='range';slider.min=min;slider.max=realMax;slider.step=step;slider.value=p[key];slider.oninput=()=>{p[key]=Number(slider.value);val.textContent=key==='angle'?p[key].toFixed(1)+'°':p[key];stopGrowth();renderFlower()};const info=document.createElement('small');info.textContent=hint;row.append(h,slider,info);section.append(row)}controls.append(section)}const color=document.createElement('div');color.className='colorbox';color.innerHTML='<label for="petalColor">Petal colour</label><input id="petalColor" type="color">';controls.prepend(color);$('petalColor').value=p.color;$('petalColor').oninput=e=>{p.color=e.target.value;stopGrowth();renderFlower()}}
+$('angles').replaceChildren();
 for(const [label,value] of [['Golden 137.5°',golden],['137°',137],['140°',140],['144°',144],['120°',120],['90°',90]]){const b=document.createElement('button');b.className='preset';b.textContent=label;b.onclick=()=>{p.angle=value;if($('angleSlider')){$('angleSlider').value=value;$('angleSliderValue').textContent=Number(value).toFixed(1)+'°';}stopGrowth();renderFlower()};$('angles').append(b)}
 $('resetFlower').onclick=()=>setFlower(family);
 $('replayGrowth').onclick=replayGrowth;
 $('growthStage').oninput=e=>{stopGrowth();renderFlower(Number(e.target.value)/100)};
 $('download').onclick=()=>{render();const a=document.createElement('a');a.download=`flower-shape-lab-${family}.png`;a.href=renderer.domElement.toDataURL('image/png');a.click()};
 // Dedicated orthographic 2D representation of the same divergence-angle rule.
-function refreshOverview(){const c=$('patternCanvas'),ctx=c.getContext('2d'),size=300;c.width=size*2;c.height=size*2;ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,300,300);ctx.fillStyle='#101d1d';ctx.fillRect(0,0,300,300);ctx.translate(150,150);if(p.kind==='disc'){
- const N=550;for(let i=0;i<N;i++){const r=Math.sqrt((i+.4)/N)*133,th=i*rad(p.angle);const x=r*Math.cos(th),y=r*Math.sin(th);ctx.beginPath();ctx.fillStyle=`hsl(${36+i/N*30} 78% ${35+i/N*30}%)`;ctx.arc(x,y,1.5+i/N*1.25,0,TAU);ctx.fill()}
- }else{const count=p.petals;for(let j=0;j<count;j++){const a=TAU*j/count;ctx.save();ctx.rotate(a);ctx.fillStyle=p.color;ctx.beginPath();ctx.ellipse(0,-68,Math.max(5,80/count),65,0,0,TAU);ctx.fill();ctx.restore()}ctx.beginPath();ctx.fillStyle='#e9b954';ctx.arc(0,0,10,0,TAU);ctx.fill()}}
+function refreshOverview(){
+ const c=$('patternCanvas'),ctx=c.getContext('2d'),size=300;
+ c.width=size*2;c.height=size*2;ctx.setTransform(2,0,0,2,0,0);
+ ctx.fillStyle='#101d1d';ctx.fillRect(0,0,size,size);
+ ctx.translate(150,150);
+ const assembly=flower?.userData?.bloom?.userData?.floretAssembly;
+ if(p.kind==='disc'&&assembly){
+  const total=assembly.total,visible=assembling?Math.max(1,Math.ceil(assemblyProgress*total)):total;
+  ctx.strokeStyle='#517565';ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(0,0,134,0,TAU);ctx.stroke();
+  for(let i=0;i<visible;i++){
+   const rn=assembly.inhibited?Math.sqrt(Math.max(.5,visible-i-.5)/total):Math.sqrt((i+.5)/total);
+   const th=assembly.angles[i],R=rn*130;
+   ctx.beginPath();ctx.fillStyle=`hsl(${36+rn*30} 78% ${35+rn*30}%)`;
+   ctx.arc(R*Math.cos(th),R*Math.sin(th),1.9+rn*1.35,0,TAU);ctx.fill();
+  }
+  if(assembling&&visible>0){
+   const i=visible-1,rn=Math.sqrt(.5/total),th=assembly.angles[i],R=rn*130;
+   ctx.strokeStyle='#8ff3c7';ctx.lineWidth=1.8;ctx.beginPath();
+   ctx.arc(R*Math.cos(th),R*Math.sin(th),7,0,TAU);ctx.stroke();
+  }
+  const result=assembly.result;
+  const detail=assembly.inhibited?
+   `${result.label} · ${visible}/${total}${result.cohortSize===1&&result.spread<9?' · '+Math.min(result.meanDivergence,360-result.meanDivergence).toFixed(1)+'°':''}`:
+   `Vogel fixed ${Number(p.angle).toFixed(1)}° · ${visible}/${total}`;
+  $('patternMeta').textContent=detail;
+ }else{
+  const count=p.petals;for(let j=0;j<count;j++){
+   const angle=TAU*j/count;ctx.save();ctx.rotate(angle);
+   ctx.fillStyle=p.color;ctx.beginPath();ctx.ellipse(0,-68,Math.max(5,80/count),65,0,0,TAU);ctx.fill();ctx.restore();
+  }
+  ctx.fillStyle='#e9b954';ctx.beginPath();ctx.arc(0,0,10,0,TAU);ctx.fill();
+  $('patternMeta').textContent=family==='tulip'||family==='lily'?'Two offset whorls of three':'Radial / layered petals';
+ }
+}
 $('copySettings').onclick=()=>{const json=JSON.stringify({flower:family,settings:p},null,2);navigator.clipboard?.writeText(json).then(()=>{$('copied').textContent='Copied';setTimeout(()=>{$('copied').textContent=''},1500)}).catch(()=>prompt('Copy settings:',json))};
 // Reuse shared TAU and rad helpers declared at the top.
 setFlower(family);setMode('perspective');resize();
